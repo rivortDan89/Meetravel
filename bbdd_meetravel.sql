@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS proyecto_viajes
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE proyecto_viajes;
+USE meetravel;
 
 -- ======================================
 -- USUARIO
