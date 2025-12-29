@@ -18,7 +18,7 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: 24 }}>
-      <h1>Mundo Viajes</h1>
+      <h1>MeeTravel</h1>
       <h2>Conexión Front ↔ Back</h2>
 
       {error && <p style={{ color: "crimson" }}>Error: {error}</p>}
