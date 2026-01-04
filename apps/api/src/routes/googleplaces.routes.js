@@ -1,20 +1,48 @@
+import { Router } from "express";
+import { pool } from "../config/db.js";  // ← Importa el pool desde db.js
 
-import { Router } from "express";            // Router de Express para crear rutas modulares. 
-import mysql from "mysql2/promise";          // mysql2 en modo promesas para usar async/await. 
+const router = Router();
 
-const router = Router();                     // Crea un router específico para las rutas de Google Places.
+// Función para traducir categorías de inglés a español
+const traducirCategoria = (categoria) => {
+  const traducciones = {
+    'restaurant': 'restaurante',
+    'lodging': 'alojamiento',
+    'hotel': 'hotel',
+    'cafe': 'cafetería',
+    'bar': 'bar',
+    'museum': 'museo',
+    'tourist_attraction': 'atracción turística',
+    'park': 'parque',
+    'shopping_mall': 'centro comercial',
+    'store': 'tienda',
+    'meal_delivery': 'entrega de comida',
+    'meal_takeaway': 'comida para llevar',
+    'food': 'comida',
+    'point_of_interest': 'punto de interés',
+    'establishment': 'establecimiento',
+    'night_club': 'discoteca',
+    'spa': 'spa',
+    'gym': 'gimnasio',
+    'pharmacy': 'farmacia',
+    'hospital': 'hospital',
+    'church': 'iglesia',
+    'bakery': 'panadería',
+    'airport': 'aeropuerto',
+    'train_station': 'estación de tren',
+    'bus_station': 'estación de autobús',
+    'parking': 'aparcamiento',
+    'gas_station': 'gasolinera',
+  };
 
-// Pool de conexiones a MySQL (reutilizable entre peticiones).
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,                 // Host de la BD (por ejemplo, localhost).
-  user: process.env.DB_USER,                 // Usuario de MySQL.
-  password: process.env.DB_PASSWORD,         // Contraseña de MySQL.
-  database: process.env.DB_NAME,             // Nombre de la base de datos.
-});
+  return traducciones[categoria] || categoria;
+};
 
 // Ruta: GET /google-places/importar?lat=40.4168&lng=-3.7038&radius=500&type=restaurant
 router.get("/importar", async (req, res) => {
   try {
+    console.log('=== Iniciando importación ===');
+    
     // Lee parámetros de la query con valores por defecto.
     const { lat, lng, radius = 500, type = "restaurant" } = req.query;
 
@@ -25,40 +53,52 @@ router.get("/importar", async (req, res) => {
 
     // API key de Google Places desde .env.
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    
+    if (!apiKey) {
+      return res.status(500).json({ error: "Falta GOOGLE_PLACES_API_KEY en .env" });
+    }
 
-    // Construye la URL de la API Nearby Search de Google Places. 
+    console.log('Llamando a Google Places API...');
+
+    // Construye la URL de la API Nearby Search de Google Places.
     const url =
-      "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
-      `?location=${lat},${lng}&radius=${radius}&type=${type}&key=${apiKey}`;
+     "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
+    `?location=${lat},${lng}&radius=${radius}&type=${type}&language=es&key=${apiKey}`;
+
 
     // Llama a la API de Google Places y parsea la respuesta JSON.
     const response = await fetch(url);
     const data = await response.json();
 
+    console.log('Respuesta de Google:', data.status);
+
     // Si la API no devuelve OK, responde con error 500.
     if (data.status !== "OK") {
       return res
         .status(500)
-        .json({ error: "Error en Google Places", detalle: data.status });
+        .json({ error: "Error en Google Places", detalle: data.status, message: data.error_message });
     }
+
+    console.log(`Procesando ${data.results.length} lugares...`);
 
     // Obtiene una conexión del pool para realizar las inserciones/actualizaciones.
     const conn = await pool.getConnection();
 
     try {
-      // Recorre todos los lugares devueltos por Google. 
+      // Recorre todos los lugares devueltos por Google.
       for (const place of data.results) {
         // Mapeo de campos de Google -> modelo de tu tabla `lugar`.
-        const nombre = place.name;                                   // Nombre del sitio.
-        const descripcion = "";                                      // De momento vacío; puedes generar un texto si quieres.
-        const direccion =
-          place.vicinity || place.formatted_address || "";           // Dirección corta o formateada. 
-        const latitud = place.geometry.location.lat;                 // Latitud.
-        const longitud = place.geometry.location.lng;                // Longitud.
-        const google_place_id = place.place_id;                      // ID único del lugar en Google. 
-        const categoria = place.types?.[0] || type;                  // Primer tipo devuelto o el type de la query. 
+        const nombre = place.name;
+        const descripcion = "";
+        const direccion = place.vicinity || place.formatted_address || "";
+        const latitud = place.geometry.location.lat;
+        const longitud = place.geometry.location.lng;
+        const google_place_id = place.place_id;
+        const categoriaOriginal = place.types?.[0] || type;  // "restaurant"
+        const categoria = traducirCategoria(categoriaOriginal);  // "restaurante"
+        // Guarda "restaurante" en la columna categoria
 
-        // Inserta en la tabla `lugar` o actualiza si ya existe el mismo google_place_id. 
+        // Inserta en la tabla `lugar` o actualiza si ya existe el mismo google_place_id.
         await conn.query(
           `
           INSERT INTO lugar
@@ -85,8 +125,10 @@ router.get("/importar", async (req, res) => {
       }
     } finally {
       // Devuelve la conexión al pool aunque haya error dentro del try.
-      conn.release();                                               // Evita fugas de conexiones. 
+      conn.release();
     }
+
+    console.log('✓ Importación completada');
 
     // Respuesta OK: indica cuántos resultados se procesaron.
     res.json({
@@ -103,6 +145,5 @@ router.get("/importar", async (req, res) => {
   }
 });
 
-// Exporta el router para usarlo en index.js con:
-// app.use("/google-places", googlePlacesRouter);
 export default router;
+

@@ -1,6 +1,7 @@
 // Importamos React y el hook useState para manejar estado (valores que cambian)
 import { useState, useEffect } from "react";
 
+
 // Importamos los componentes de React-Leaflet que usaremos en el mapa
 import {
   MapContainer,  // Contenedor principal del mapa (equivale a L.map(...) en Leaflet “normal”)
@@ -13,8 +14,99 @@ import {
 
 // Importamos el CSS de Leaflet para que se vean bien el mapa, controles e iconos
 import "leaflet/dist/leaflet.css";
+import L from 'leaflet';
 
+// Iconos Phosphor organizados por secciones
+const categoryIcons = {
+  // Alojamiento
+  'hotel': '<i class="ph ph-bed"></i>',
+  'alojamiento': '<i class="ph ph-house"></i>',
+  'hostal': '<i class="ph ph-building"></i>',
 
+  // Comida y Bebida
+  'restaurante': '<i class="ph ph-fork-knife"></i>',
+  'café': '<i class="ph ph-coffee"></i>',
+  'bar': '<i class="ph ph-beer-bottle"></i>',
+  'panadería': '<i class="ph ph-bread"></i>',
+
+  // Compras
+  'tienda': '<i class="ph ph-shopping-cart"></i>',
+  'centro_comercial': '<i class="ph ph-storefront"></i>',
+  'supermercado': '<i class="ph ph-shopping-bag"></i>',
+
+  // Transporte
+  'estación_tren': '<i class="ph ph-train"></i>',
+  'estación_autobús': '<i class="ph ph-bus"></i>',
+  'aeropuerto': '<i class="ph ph-airplane"></i>',
+  'parada_metro': '<i class="ph ph-subway"></i>',
+  'parking': '<i class="ph ph-car"></i>',
+
+  // Salud
+  'hospital': '<i class="ph ph-first-aid-kit"></i>',
+  'farmacia': '<i class="ph ph-first-aid"></i>',
+  'clínica': '<i class="ph ph-heart-pulse"></i>',
+
+  // Cultura y Ocio
+  'museo': '<i class="ph ph-bank"></i>',
+  'teatro': '<i class="ph ph-masks-theater"></i>',
+  'cine': '<i class="ph ph-film-strip"></i>',
+  'biblioteca': '<i class="ph ph-books"></i>',
+  'parque': '<i class="ph ph-tree"></i>',
+  'gimnasio': '<i class="ph ph-barbell"></i>',
+  'piscina': '<i class="ph ph-swimming-pool"></i>',
+
+  // Servicios
+  'banco': '<i class="ph ph-bank"></i>',
+  'oficina_correos': '<i class="ph ph-envelope"></i>',
+  'gasolinera': '<i class="ph ph-gas-pump"></i>',
+  'ayuntamiento': '<i class="ph ph-buildings"></i>',
+  'comisaría': '<i class="ph ph-shield-check"></i>',
+
+  // Educación
+  'escuela': '<i class="ph ph-graduation-cap"></i>',
+  'universidad': '<i class="ph ph-student"></i>',
+
+  // Turismo
+  'punto_interés': '<i class="ph ph-map-pin"></i>',
+  'monumento': '<i class="ph ph-monument"></i>',
+  'mirador': '<i class="ph ph-binoculars"></i>',
+  'playa': '<i class="ph ph-umbrella-simple"></i>',
+
+  // Por defecto
+  'default': '<i class="ph ph-map-pin-line"></i>'
+};
+
+// Función para crear icono personalizado
+const createCustomIcon = (category) => {
+  const iconHTML = categoryIcons[category] || categoryIcons['default'];
+
+  return L.divIcon({
+    html: `<div style="background-color: #3b82f6; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-size: 20px;">
+      ${iconHTML}
+    </div>`,
+    className: 'custom-marker-icon',
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -40]
+  });
+};
+
+//
+function PopupBadge({ children, color = '#27ae60' }) {
+  return (
+    <span style={{
+      backgroundColor: color,  // color dinámico
+      color: 'white',
+      padding: '3px 8px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      whiteSpace: 'nowrap',
+      display: 'inline-block'
+    }}>
+      {children}
+    </span>
+  );
+}
 // Componente auxiliar que "escucha" clics en el mapa
 function ClickHandler({ onClick }) {
   // useMapEvents se conecta con el mapa y nos deja reaccionar a eventos
@@ -46,7 +138,7 @@ function RecentrarMapa({ posicion }) {
 
 
 // Componente principal del mapa
-// 🔽 Ahora recibe `lugares` (los lugares filtrados que vienen del backend)
+// Recibe `lugares` (los lugares filtrados que vienen del backend)
 export default function MapaInteractivo({ lugares = [] }) {
   // Creamos un estado llamado "posicion" y su función para actualizarlo "setPosicion".
   // Lo inicializamos a null, es decir, al cargar la página todavía no tenemos coordenadas.
@@ -150,25 +242,85 @@ export default function MapaInteractivo({ lugares = [] }) {
           <Popup>Ubicación seleccionada</Popup>
         </Marker>
 
-        {/* 🔽 NUEVO: marcadores para cada lugar que viene de la BD */}
+
         {lugares.map((lugar) => (
           <Marker
-            key={lugar.id_lugar}
+            key={lugar.id}
             position={[lugar.latitud, lugar.longitud]}
+            icon={createCustomIcon(lugar.categoria)}
           >
-            <Popup>
-              <strong>{lugar.nombre}</strong>
-              <br />
-              {lugar.descripcion}
+            <Popup maxWidth={320}>
+              <div style={{ padding: '10px' }}>
+                <h3 style={{
+                  margin: '0 0 10px 0',
+                  color: '#2c3e50',
+                  fontSize: '16px'
+                }}>
+                  {lugar.nombre}
+                </h3>
+
+                <div style={{ marginBottom: '8px' }}>
+                  <span style={{
+                    backgroundColor: '#3498db',
+                    color: 'white',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}>
+                    {lugar.categoria}
+                  </span>
+                </div>
+
+                {lugar.direccion && (
+                  <p style={{
+                    margin: '5px 0',
+                    fontSize: '14px',
+                    color: '#555'
+                  }}>
+                    📍 {lugar.direccion}
+                  </p>
+                )}
+
+                {/* Características de accesibilidad */}
+                <div style={{
+                  marginTop: '10px',
+                  paddingTop: '10px',
+                  borderTop: '1px solid #eee'
+                }}>
+                  <strong style={{ fontSize: '13px', color: '#2c3e50' }}>
+                    Accesibilidad:
+                  </strong>
+                  <div style={{
+                    marginTop: '6px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '5px'
+                  }}>
+                    {lugar.sillaRuedas && <PopupBadge color="#10b981">♿ Silla ruedas</PopupBadge>}
+                    {lugar.aseoAdaptado && <PopupBadge color="#3b82f6">🚻 Aseo</PopupBadge>}
+                    {lugar.aparcamientoAccesible && <PopupBadge color="#8b5cf6">🅿️ Parking</PopupBadge>}
+                    {lugar.ascensorPlataforma && <PopupBadge color="#f59e0b">🛗 Ascensor</PopupBadge>}
+                    {lugar.perroGuia && <PopupBadge color="#ec4899">🦮 Perro guía</PopupBadge>}
+                    {lugar.infoAudio && <PopupBadge color="#14b8a6">🔊 Audio</PopupBadge>}
+                    {lugar.senaleticaBraille && <PopupBadge color="#6366f1">👆 Braille</PopupBadge>}
+                    {lugar.infoSubtitulos && <PopupBadge color="#ef4444">📝 Subtítulos</PopupBadge>}
+
+                    {!lugar.sillaRuedas && !lugar.aseoAdaptado && !lugar.aparcamientoAccesible &&
+                      !lugar.ascensorPlataforma && !lugar.perroGuia && !lugar.infoAudio &&
+                      !lugar.senaleticaBraille && !lugar.infoSubtitulos && (
+                        <span style={{ fontSize: '12px', color: '#999' }}>
+                          Sin información de accesibilidad
+                        </span>
+                      )}
+                  </div>
+                </div>
+              </div>
             </Popup>
           </Marker>
         ))}
 
-        {/* ClickHandler escucha los clics en el mapa y actualiza la posición del marcador */}
-        {/* Pasamos setPosicion como onClick, así cada clic mueve el marcador */}
         <ClickHandler onClick={setPosicion} />
-
-        {/* NUEVO: recentra el mapa cada vez que cambia `posicion` */}
         <RecentrarMapa posicion={posicion} />
       </MapContainer>
     </>

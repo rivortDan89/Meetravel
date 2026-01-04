@@ -1,16 +1,12 @@
-// Maps.jsx
 import { useEffect, useState } from "react";
-import MapaInteractivo from "./MapaInteractivo";
+import MapaInteractivo from "../components/MapaInteractivo";
 
 export default function Maps() {
-  // Lista completa de lugares que vienen del backend
   const [lugares, setLugares] = useState([]);
-  // Estado con los filtros (por ahora solo silla de ruedas)
   const [filtros, setFiltros] = useState({});
-  // Estado para mostrar errores de la API
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Al montar la página, pedimos los lugares accesibles al backend
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -19,31 +15,32 @@ export default function Maps() {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
-      .then(setLugares)
-      .catch((e) => setError(e.message));
+      .then((data) => {
+        setLugares(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message);
+        setLoading(false);
+      });
   }, []);
 
-  // Aplicamos los filtros al array de lugares
   const lugaresFiltrados = aplicarFiltros(lugares, filtros);
 
   return (
     <div className="maps-page">
-      {/* ENCABEZADO */}
       <header className="maps-header">
         <div className="logo">MeeTravel</div>
         <nav className="maps-nav">
           <button>Iniciar sesión</button>
           <button>Registrarse</button>
-     
         </nav>
       </header>
 
-      {/* CUERPO: filtros + lista lateral */}
       <main className="maps-main">
         <section className="maps-filtros">
           <h2>Filtros de accesibilidad</h2>
 
-          {/* Ejemplo de filtro: accesible con silla de ruedas */}
           <label>
             <input
               type="checkbox"
@@ -52,45 +49,159 @@ export default function Maps() {
                 setFiltros((f) => ({ ...f, sillaRuedas: e.target.checked }))
               }
             />
-            Accesible con silla de ruedas
+            ♿ Silla de ruedas
           </label>
 
-          {/* Aquí añadirás más checkboxes para el resto de etiquetas */}
+          <label>
+            <input
+              type="checkbox"
+              checked={!!filtros.aseoAdaptado}
+              onChange={(e) =>
+                setFiltros((f) => ({ ...f, aseoAdaptado: e.target.checked }))
+              }
+            />
+            🚻 Aseo adaptado
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={!!filtros.aparcamientoAccesible}
+              onChange={(e) =>
+                setFiltros((f) => ({ ...f, aparcamientoAccesible: e.target.checked }))
+              }
+            />
+            🅿️ Aparcamiento accesible
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={!!filtros.ascensorPlataforma}
+              onChange={(e) =>
+                setFiltros((f) => ({ ...f, ascensorPlataforma: e.target.checked }))
+              }
+            />
+            🛗 Ascensor o plataforma
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={!!filtros.perroGuia}
+              onChange={(e) =>
+                setFiltros((f) => ({ ...f, perroGuia: e.target.checked }))
+              }
+            />
+            🦮 Perro guía
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={!!filtros.infoAudio}
+              onChange={(e) =>
+                setFiltros((f) => ({ ...f, infoAudio: e.target.checked }))
+              }
+            />
+            🔊 Información en audio
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={!!filtros.senaleticaBraille}
+              onChange={(e) =>
+                setFiltros((f) => ({ ...f, senaleticaBraille: e.target.checked }))
+              }
+            />
+            👆 Señalética en braille
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={!!filtros.infoSubtitulos}
+              onChange={(e) =>
+                setFiltros((f) => ({ ...f, infoSubtitulos: e.target.checked }))
+              }
+            />
+            📝 Información con subtítulos
+          </label>
         </section>
 
         <aside className="maps-lateral">
           <h3>Lugares accesibles cercanos</h3>
+
+          {loading && <p>Cargando lugares...</p>}
           {error && <p className="error">Error: {error}</p>}
+          {!loading && !error && (
+            <p>Encontrados {lugaresFiltrados.length} lugares</p>
+          )}
 
           <ul className="maps-lista">
             {lugaresFiltrados.map((lugar) => (
-              <li key={lugar.id_lugar} className="maps-card">
+              <li key={lugar.id} className="maps-card">
                 <h4>{lugar.nombre}</h4>
-                <p>{lugar.descripcion}</p>
-                {/* aquí puedes mostrar las etiquetas de accesibilidad del lugar */}
+                <p style={{ fontSize: '13px', color: '#666' }}>
+                  {lugar.categoria}
+                </p>
+                <p style={{ fontSize: '12px', color: '#999' }}>
+                  {lugar.direccion}
+                </p>
+
+                {/* Etiquetas de accesibilidad */}
+                <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                  {lugar.sillaRuedas && <Badge>♿</Badge>}
+                  {lugar.aseoAdaptado && <Badge>🚻</Badge>}
+                  {lugar.aparcamientoAccesible && <Badge>🅿️</Badge>}
+                  {lugar.ascensorPlataforma && <Badge>🛗</Badge>}
+                  {lugar.perroGuia && <Badge>🦮</Badge>}
+                  {lugar.infoAudio && <Badge>🔊</Badge>}
+                  {lugar.senaleticaBraille && <Badge>👆</Badge>}
+                  {lugar.infoSubtitulos && <Badge>📝</Badge>}
+                </div>
               </li>
             ))}
           </ul>
         </aside>
       </main>
 
-      {/* MAPA ABAJO */}
       <section className="maps-map-section">
-        <MapaInteractivo lugares={lugaresFiltrados} />
+        {!loading && <MapaInteractivo lugares={lugaresFiltrados} />}
       </section>
-
     </div>
   );
 }
 
-// Función que decide qué lugares pasan los filtros
+// Componente auxiliar para los badges
+function Badge({ children }) {
+  return (
+    <span style={{
+      backgroundColor: '#27ae60',
+      color: 'white',
+      padding: '2px 6px',
+      borderRadius: '3px',
+      fontSize: '14px'
+    }}>
+      {children}
+    </span>
+  );
+}
+
+// Función que filtra lugares según las etiquetas seleccionadas
 function aplicarFiltros(lugares, filtros) {
   return lugares.filter((lugar) => {
-    // ejemplo: si el filtro sillaRuedas está activo,
-    // solo dejamos lugares que tengan esa propiedad a true
-    if (filtros.sillaRuedas && !lugar.sillaRuedas) {
-      return false;
-    }
+    // Si hay filtros activos, el lugar debe cumplir TODOS
+    if (filtros.sillaRuedas && !lugar.sillaRuedas) return false;
+    if (filtros.aseoAdaptado && !lugar.aseoAdaptado) return false;
+    if (filtros.aparcamientoAccesible && !lugar.aparcamientoAccesible) return false;
+    if (filtros.ascensorPlataforma && !lugar.ascensorPlataforma) return false;
+    if (filtros.perroGuia && !lugar.perroGuia) return false;
+    if (filtros.infoAudio && !lugar.infoAudio) return false;
+    if (filtros.senaleticaBraille && !lugar.senaleticaBraille) return false;
+    if (filtros.infoSubtitulos && !lugar.infoSubtitulos) return false;
+
     return true;
   });
 }
