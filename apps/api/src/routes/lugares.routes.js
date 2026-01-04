@@ -1,22 +1,42 @@
+
 import { Router } from "express";
-import { LUGARES } from "../data/lugares.mock.js";
+import { pool } from "../db.js";
 
 const router = Router();
 
-// Lista de lugares (para marcadores)
-router.get("/lugares", (req, res) => {
-  // MVP: devolver todo tal cual
-res.json(LUGARES);
-});
+// GET /lugares-accesibles
+router.get("/", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT 
+        id_lugar,
+        nombre,
+        descripcion,
+        latitud,
+        longitud,
+        categoria,
+        direccion,
+        google_place_id
+      FROM lugar
+    `);
 
-// Ficha de un lugar
-router.get("/lugares/:id", (req, res) => {
-const id = Number(req.params.id);
-const lugar = LUGARES.find(l => l.id_lugar === id);
+    const lugares = rows.map((row) => ({
+      id: row.id_lugar,
+      nombre: row.nombre,
+      descripcion: row.descripcion,
+      latitud: row.latitud,
+      longitud: row.longitud,
+      categoria: row.categoria,
+      direccion: row.direccion,
+      google_place_id: row.google_place_id,
+      sillaRuedas: false, // de momento
+    }));
 
-if (!lugar) return res.status(404).json({ error: "Lugar no encontrado" });
-
-res.json(lugar);
+    res.json(lugares);
+  } catch (err) {
+    console.error("Error obteniendo lugares:", err);
+    res.status(500).json({ error: "Error al obtener lugares", detalle: String(err) });
+  }
 });
 
 export default router;
