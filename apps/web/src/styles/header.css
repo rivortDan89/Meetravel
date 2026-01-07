@@ -1,0 +1,48 @@
+.mtHeader {
+  background: #163932;
+  color: #fff;
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.mtHeader__inner {
+  width: min(1200px, calc(100% - 48px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mtHeader__logo {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.mtHeader__nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mtHeader__link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.mtHeader__link:hover {
+  opacity: 1;
+}
+
+.mtHeader__btn {
+  background: #B6361C;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+}

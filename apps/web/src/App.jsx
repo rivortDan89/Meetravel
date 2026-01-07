@@ -8,12 +8,18 @@ import Maps from "./pages/Maps";
 export default function App() {
   return (
     <BrowserRouter>
-      < Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/maps" element={<Maps />} />
-      </Routes>
-      < Footer />
+      <div className="appShell">
+        <Header />
+
+        <main className="appMain">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/maps" element={<Maps />} />
+          </Routes>
+        </main>
+
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }

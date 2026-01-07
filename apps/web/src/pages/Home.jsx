@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getHealth } from "../services/api";
 
 export default function Home() {
   const [status, setStatus] = useState("Cargando...");
-  const navigate = useNavigate();
 
   useEffect(() => {
     getHealth()
@@ -14,17 +12,13 @@ export default function Home() {
 
   return (
     <main style={{ padding: 24 }}>
-      <h1>MeeTravel</h1>
+
+      <section className="homeHero">
+        <h1 className="homeHero__h1">Explora. Comparte. Organiza.</h1>
+      </section>
+
       <p>Conexión Front ↔ Back: {status}</p>
 
-      <div style={{ marginTop: 20, display: 'flex', gap: 15 }}>
-        <button onClick={() => navigate('/maps')}>
-          🗺️ Ver Mapa
-        </button>
-        <button onClick={() => navigate('/buscar-viaje')}>
-          ✈️ Buscar Viaje
-        </button>
-      </div>
     </main>
   );
 }

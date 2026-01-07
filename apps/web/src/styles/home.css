@@ -1,0 +1,16 @@
+.homeHero {
+  min-height: calc(100vh - 64px - 180px);
+  /* header 64px + footer aprox */
+  display: grid;
+  place-items: center;
+  background: radial-gradient(900px 500px at 50% 20%, rgba(182, 54, 28, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 30% 30%, rgba(22, 57, 50, 0.18), transparent 60%),
+    #EFEAD6;
+}
+
+.homeHero__h1 {
+  margin: 0;
+  color: #163932;
+  font-size: 48px;
+  font-weight: 800;
+}
