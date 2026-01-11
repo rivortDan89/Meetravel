@@ -1,207 +1,59 @@
+// Importa los hooks de React y el componente del mapa
 import { useEffect, useState } from "react";
 import MapaInteractivo from "../components/MapaInteractivo";
 
 export default function Maps() {
+  // Estado para guardar los lugares que vienen de la API
   const [lugares, setLugares] = useState([]);
-  const [filtros, setFiltros] = useState({});
+  // Estado para guardar un posible mensaje de error
   const [error, setError] = useState("");
+  // Estado para saber si todavía estamos cargando los datos
   const [loading, setLoading] = useState(true);
 
+  // useEffect se ejecuta una vez al montar el componente ([]) 
+  // y hace la petición al backend
   useEffect(() => {
+    // URL base de la API: primero mira la variable de entorno
+    // y si no existe usa http://localhost:3001
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-    fetch(`${apiUrl}/lugares-accesibles`)
+    // Petición HTTP GET a /api/lugares
+    fetch(`${apiUrl}/api/lugares`)
       .then((r) => {
+        // Si la respuesta no es 2xx, lanzamos un error para que lo capture el catch
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        // Convertimos la respuesta a JSON
         return r.json();
       })
       .then((data) => {
+        // Mostramos por consola los lugares recibidos (útil para debug)
+        console.log("✅ Lugares cargados:", data);
+        // Guardamos los lugares en el estado
         setLugares(data);
+        // Marcamos que ya ha terminado la carga
         setLoading(false);
       })
       .catch((e) => {
+        // Si algo falla (red, servidor, etc.), lo mostramos en consola
+        console.error("❌ Error:", e);
+        // Guardamos el mensaje de error para mostrarlo en pantalla
         setError(e.message);
+        // También paramos el estado de carga
         setLoading(false);
       });
-  }, []);
+  }, []); // El array vacío hace que solo se ejecute una vez al montar el componente
 
-  const lugaresFiltrados = aplicarFiltros(lugares, filtros);
+  // Mientras se están cargando los datos, mostramos un texto de "Cargando..."
+  if (loading) return <p>Cargando lugares...</p>;
 
+  // Si hubo un error, mostramos el mensaje de error
+  if (error) return <p className="error">Error: {error}</p>;
+
+  // Si todo fue bien, renderizamos el mapa interactivo
+  // y le pasamos los lugares como prop
   return (
-    <div className="maps-page">
-      <header className="maps-header">
-        <div className="logo">MeeTravel</div>
-        <nav className="maps-nav">
-          <button>Iniciar sesión</button>
-          <button>Registrarse</button>
-        </nav>
-      </header>
-
-      <main className="maps-main">
-        <section className="maps-filtros">
-          <h2>Filtros de accesibilidad</h2>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={!!filtros.sillaRuedas}
-              onChange={(e) =>
-                setFiltros((f) => ({ ...f, sillaRuedas: e.target.checked }))
-              }
-            />
-            ♿ Silla de ruedas
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={!!filtros.aseoAdaptado}
-              onChange={(e) =>
-                setFiltros((f) => ({ ...f, aseoAdaptado: e.target.checked }))
-              }
-            />
-            🚻 Aseo adaptado
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={!!filtros.aparcamientoAccesible}
-              onChange={(e) =>
-                setFiltros((f) => ({ ...f, aparcamientoAccesible: e.target.checked }))
-              }
-            />
-            🅿️ Aparcamiento accesible
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={!!filtros.ascensorPlataforma}
-              onChange={(e) =>
-                setFiltros((f) => ({ ...f, ascensorPlataforma: e.target.checked }))
-              }
-            />
-            🛗 Ascensor o plataforma
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={!!filtros.perroGuia}
-              onChange={(e) =>
-                setFiltros((f) => ({ ...f, perroGuia: e.target.checked }))
-              }
-            />
-            🦮 Perro guía
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={!!filtros.infoAudio}
-              onChange={(e) =>
-                setFiltros((f) => ({ ...f, infoAudio: e.target.checked }))
-              }
-            />
-            🔊 Información en audio
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={!!filtros.senaleticaBraille}
-              onChange={(e) =>
-                setFiltros((f) => ({ ...f, senaleticaBraille: e.target.checked }))
-              }
-            />
-            👆 Señalética en braille
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={!!filtros.infoSubtitulos}
-              onChange={(e) =>
-                setFiltros((f) => ({ ...f, infoSubtitulos: e.target.checked }))
-              }
-            />
-            📝 Información con subtítulos
-          </label>
-        </section>
-
-        <aside className="maps-lateral">
-          <h3>Lugares accesibles cercanos</h3>
-
-          {loading && <p>Cargando lugares...</p>}
-          {error && <p className="error">Error: {error}</p>}
-          {!loading && !error && (
-            <p>Encontrados {lugaresFiltrados.length} lugares</p>
-          )}
-
-          <ul className="maps-lista">
-            {lugaresFiltrados.map((lugar) => (
-              <li key={lugar.id} className="maps-card">
-                <h4>{lugar.nombre}</h4>
-                <p style={{ fontSize: '13px', color: '#666' }}>
-                  {lugar.categoria}
-                </p>
-                <p style={{ fontSize: '12px', color: '#999' }}>
-                  {lugar.direccion}
-                </p>
-
-                {/* Etiquetas de accesibilidad */}
-                <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                  {lugar.sillaRuedas && <Badge>♿</Badge>}
-                  {lugar.aseoAdaptado && <Badge>🚻</Badge>}
-                  {lugar.aparcamientoAccesible && <Badge>🅿️</Badge>}
-                  {lugar.ascensorPlataforma && <Badge>🛗</Badge>}
-                  {lugar.perroGuia && <Badge>🦮</Badge>}
-                  {lugar.infoAudio && <Badge>🔊</Badge>}
-                  {lugar.senaleticaBraille && <Badge>👆</Badge>}
-                  {lugar.infoSubtitulos && <Badge>📝</Badge>}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </aside>
-      </main>
-
-      <section className="maps-map-section">
-        {!loading && <MapaInteractivo lugares={lugaresFiltrados} />}
-      </section>
-    </div>
+    <section className="maps-map-section">
+      <MapaInteractivo lugares={lugares} />
+    </section>
   );
-}
-
-// Componente auxiliar para los badges
-function Badge({ children }) {
-  return (
-    <span style={{
-      backgroundColor: '#27ae60',
-      color: 'white',
-      padding: '2px 6px',
-      borderRadius: '3px',
-      fontSize: '14px'
-    }}>
-      {children}
-    </span>
-  );
-}
-
-// Función que filtra lugares según las etiquetas seleccionadas
-function aplicarFiltros(lugares, filtros) {
-  return lugares.filter((lugar) => {
-    // Si hay filtros activos, el lugar debe cumplir TODOS
-    if (filtros.sillaRuedas && !lugar.sillaRuedas) return false;
-    if (filtros.aseoAdaptado && !lugar.aseoAdaptado) return false;
-    if (filtros.aparcamientoAccesible && !lugar.aparcamientoAccesible) return false;
-    if (filtros.ascensorPlataforma && !lugar.ascensorPlataforma) return false;
-    if (filtros.perroGuia && !lugar.perroGuia) return false;
-    if (filtros.infoAudio && !lugar.infoAudio) return false;
-    if (filtros.senaleticaBraille && !lugar.senaleticaBraille) return false;
-    if (filtros.infoSubtitulos && !lugar.infoSubtitulos) return false;
-
-    return true;
-  });
 }

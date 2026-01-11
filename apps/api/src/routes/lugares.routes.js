@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
         l.categoria,
         l.direccion,
         l.google_place_id,
-        GROUP_CONCAT(e.nombre_etiqueta) as etiquetas
+        GROUP_CONCAT(e.nombre) as etiquetas
       FROM lugar l
       LEFT JOIN lugar_etiqueta le ON l.id_lugar = le.id_lugar
       LEFT JOIN etiqueta e ON le.id_etiqueta = e.id_etiqueta

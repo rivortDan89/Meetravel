@@ -19,58 +19,38 @@ import L from 'leaflet';
 // Iconos Phosphor organizados por secciones
 const categoryIcons = {
   // Alojamiento
-  'hotel': '<i class="ph ph-bed"></i>',
-  'alojamiento': '<i class="ph ph-house"></i>',
-  'hostal': '<i class="ph ph-building"></i>',
+  Alojamiento: '<i class="ph ph-house"></i>',
+  Hotel: '<i class="ph ph-bed"></i>',
 
   // Comida y Bebida
-  'restaurante': '<i class="ph ph-fork-knife"></i>',
-  'café': '<i class="ph ph-coffee"></i>',
-  'bar': '<i class="ph ph-beer-bottle"></i>',
-  'panadería': '<i class="ph ph-bread"></i>',
+  Restaurante: '<i class="ph ph-fork-knife"></i>',
+  Cafetería: '<i class="ph ph-coffee"></i>',
+  Bar: '<i class="ph ph-beer-bottle"></i>',
+  Panadería: '<i class="ph ph-bread"></i>',
 
   // Compras
-  'tienda': '<i class="ph ph-shopping-cart"></i>',
-  'centro_comercial': '<i class="ph ph-storefront"></i>',
-  'supermercado': '<i class="ph ph-shopping-bag"></i>',
+  Tienda: '<i class="ph ph-shopping-cart"></i>',
+  'Centro comercial': '<i class="ph ph-storefront"></i>',
+  Supermercado: '<i class="ph ph-shopping-bag"></i>',
 
   // Transporte
-  'estación_tren': '<i class="ph ph-train"></i>',
-  'estación_autobús': '<i class="ph ph-bus"></i>',
-  'aeropuerto': '<i class="ph ph-airplane"></i>',
-  'parada_metro': '<i class="ph ph-subway"></i>',
-  'parking': '<i class="ph ph-car"></i>',
-
+  Aeropuerto: '<i class="ph ph-airplane"></i>',
+  'Estación de tren': '<i class="ph ph-train"></i>',
+  'Estación de autobús': '<i class="ph ph-bus"></i>',
+  Aparcamiento: '<i class="ph ph-car"></i>',
+  Gasolinera: '<i class="ph ph-gas-pump"></i>',
   // Salud
-  'hospital': '<i class="ph ph-first-aid-kit"></i>',
-  'farmacia': '<i class="ph ph-first-aid"></i>',
-  'clínica': '<i class="ph ph-heart-pulse"></i>',
+  Hospital: '<i class="ph ph-first-aid-kit"></i>',
+  Farmacia: '<i class="ph ph-first-aid"></i>',
 
   // Cultura y Ocio
-  'museo': '<i class="ph ph-bank"></i>',
-  'teatro': '<i class="ph ph-masks-theater"></i>',
-  'cine': '<i class="ph ph-film-strip"></i>',
-  'biblioteca': '<i class="ph ph-books"></i>',
-  'parque': '<i class="ph ph-tree"></i>',
-  'gimnasio': '<i class="ph ph-barbell"></i>',
-  'piscina': '<i class="ph ph-swimming-pool"></i>',
+  Museo: '<i class="ph ph-bank"></i>',
+  Parque: '<i class="ph ph-tree"></i>',
+  'Atracción turística': '<i class="ph ph-map-pin"></i>',
+  Gimnasio: '<i class="ph ph-barbell"></i>',
+  Spa: '<i class="ph ph-drop"></i>',
 
-  // Servicios
-  'banco': '<i class="ph ph-bank"></i>',
-  'oficina_correos': '<i class="ph ph-envelope"></i>',
-  'gasolinera': '<i class="ph ph-gas-pump"></i>',
-  'ayuntamiento': '<i class="ph ph-buildings"></i>',
-  'comisaría': '<i class="ph ph-shield-check"></i>',
-
-  // Educación
-  'escuela': '<i class="ph ph-graduation-cap"></i>',
-  'universidad': '<i class="ph ph-student"></i>',
-
-  // Turismo
-  'punto_interés': '<i class="ph ph-map-pin"></i>',
-  'monumento': '<i class="ph ph-monument"></i>',
-  'mirador': '<i class="ph ph-binoculars"></i>',
-  'playa': '<i class="ph ph-umbrella-simple"></i>',
+ 
 
   // Por defecto
   'default': '<i class="ph ph-map-pin-line"></i>'
