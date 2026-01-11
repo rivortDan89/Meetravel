@@ -35,72 +35,108 @@ const traducirCategoria = (categoria) => {
     'gas_station': 'Gasolinera',
     'supermarket': 'Supermercado',
     'grocery_or_supermarket': 'Supermercado',
-  };
+    'liquor_store': 'Tienda de licores',
+    'beauty_salon': 'Salon de belleza',
+    'library': 'Biblioteca',
+    'movie_theater': 'Cine',
+    'art_gallery': 'Galería de arte',
+    'clothing store': 'Tienda de moda',
+    'jewelry_store': 'Tienda de joyas',
+    'book_store': 'Tienda de libros',
+    'health': 'Salud',};
 
   return traducciones[categoria] || categoria;
 };
 
-// Ruta: GET /google-places/importar?lat=40.4168&lng=-3.7038&radius=500&type=restaurant
+// Función auxiliar para "dormir" unos milisegundos (pausa asíncrona).
+// Se usa para esperar antes de llamar a Google con next_page_token.
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
+// Ruta: GET /google-places/importar?lat=37.9922&lng=-1.1307&radius=10000&type=restaurant
 router.get("/importar", async (req, res) => {
   try {
-    console.log('=== Iniciando importación ===');
-    
-    // Lee parámetros de la query con valores por defecto.
+    console.log("=== Iniciando importación con paginación ===");
+
+    // 1) Leer parámetros de la query con valores por defecto.
     const { lat, lng, radius = 500, type = "restaurant" } = req.query;
 
-    // Validación básica: lat y lng son obligatorios.
+    // 2) Validación básica: lat y lng son obligatorios.
     if (!lat || !lng) {
       return res.status(400).json({ error: "lat y lng son obligatorios" });
     }
 
-    // API key de Google Places desde .env.
+    // 3) Obtener la API key de Google Places desde .env.
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-    
     if (!apiKey) {
-      return res.status(500).json({ error: "Falta GOOGLE_PLACES_API_KEY en .env" });
-    }
-
-    console.log('Llamando a Google Places API...');
-
-    // Construye la URL de la API Nearby Search de Google Places.
-    const url =
-     "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
-    `?location=${lat},${lng}&radius=${radius}&type=${type}&language=es&key=${apiKey}`;
-
-
-    // Llama a la API de Google Places y parsea la respuesta JSON.
-    const response = await fetch(url);
-    const data = await response.json();
-
-    console.log('Respuesta de Google:', data.status);
-
-    // Si la API no devuelve OK, responde con error 500.
-    if (data.status !== "OK") {
       return res
         .status(500)
-        .json({ error: "Error en Google Places", detalle: data.status, message: data.error_message });
+        .json({ error: "Falta GOOGLE_PLACES_API_KEY en .env" });
     }
 
-    console.log(`Procesando ${data.results.length} lugares...`);
+    // 4) URL base de la API Nearby Search (sin pagetoken).
+    const baseUrl =
+      "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
+      `?location=${lat},${lng}&radius=${radius}&type=${type}&language=es&key=${apiKey}`;
 
-    // Obtiene una conexión del pool para realizar las inserciones/actualizaciones.
+    // 5) Acumuladores para la paginación.
+    let allResults = [];   // aquí iremos acumulando todos los lugares
+    let pagetoken = null;  // token de la siguiente página
+    let pageCount = 0;     // contador de páginas descargadas
+
+    // 6) Bucle para pedir varias páginas mientras haya next_page_token.
+    do {
+      // Si hay pagetoken, lo añadimos a la URL; si no, usamos la base.
+      const url = pagetoken ? `${baseUrl}&pagetoken=${pagetoken}` : baseUrl;
+
+      console.log("Llamando a Google Places:", url);
+      const response = await fetch(url);
+      const data = await response.json();
+
+      console.log("Respuesta de Google:", data.status);
+
+      // Si la respuesta es un error distinto de ZERO_RESULTS, devolvemos 500.
+      if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+        return res.status(500).json({
+          error: "Error en Google Places",
+          detalle: data.status,
+          message: data.error_message,
+        });
+      }
+
+      // Añadimos los resultados de esta página al array global.
+      allResults = allResults.concat(data.results || []);
+
+      // Guardamos el token de la siguiente página (si lo hay).
+      pagetoken = data.next_page_token || null;
+      pageCount++;
+
+      // Google necesita unos segundos antes de usar next_page_token.
+      // Limitamos a máx. 3 páginas (≈ 60 resultados) para no abusar de la API.
+      if (pagetoken && pageCount < 3) {
+        await sleep(2500); // esperamos 2,5 segundos y seguimos con la siguiente página
+      } else {
+        pagetoken = null; // salimos del bucle
+      }
+    } while (pagetoken);
+
+    console.log(`Procesando ${allResults.length} lugares en total...`);
+
+    // 7) Obtenemos una conexión del pool para insertar/actualizar en la BD.
     const conn = await pool.getConnection();
-
     try {
-      // Recorre todos los lugares devueltos por Google.
-      for (const place of data.results) {
-        // Mapeo de campos de Google -> modelo de tu tabla `lugar`.
+      // Recorremos TODOS los lugares acumulados (de todas las páginas).
+      for (const place of allResults) {
+        // Mapeo de campos de Google -> columnas de la tabla `lugar`.
         const nombre = place.name;
         const descripcion = "";
         const direccion = place.vicinity || place.formatted_address || "";
         const latitud = place.geometry.location.lat;
         const longitud = place.geometry.location.lng;
         const google_place_id = place.place_id;
-        const categoriaOriginal = place.types?.[0] || type;  // "restaurant"
-        const categoria = traducirCategoria(categoriaOriginal);  // "restaurante"
-        // Guarda "restaurante" en la columna categoria
+        const categoriaOriginal = place.types?.[0] || type;  // ej. "restaurant"
+        const categoria = traducirCategoria(categoriaOriginal); // ej. "Restaurante"
 
-        // Inserta en la tabla `lugar` o actualiza si ya existe el mismo google_place_id.
+        // 8) Insertar o actualizar el lugar según google_place_id (UNIQUE).
         await conn.query(
           `
           INSERT INTO lugar
@@ -113,7 +149,7 @@ router.get("/importar", async (req, res) => {
             longitud = VALUES(longitud),
             categoria = VALUES(categoria),
             direccion = VALUES(direccion)
-          `,
+        `,
           [
             nombre,
             descripcion,
@@ -126,19 +162,19 @@ router.get("/importar", async (req, res) => {
         );
       }
     } finally {
-      // Devuelve la conexión al pool aunque haya error dentro del try.
+      // 9) Devolvemos la conexión al pool aunque haya fallos dentro del try.
       conn.release();
     }
 
-    console.log('✓ Importación completada');
+    console.log("✓ Importación completada");
 
-    // Respuesta OK: indica cuántos resultados se procesaron.
+    // 10) Respuesta OK con el total de lugares procesados (todas las páginas).
     res.json({
       message: "Lugares importados/actualizados",
-      count: data.results.length,
+      count: allResults.length,
     });
   } catch (err) {
-    // Manejo de errores generales (red, BD, etc.).
+    // 11) Manejo de errores generales (red, base de datos, etc.).
     console.error("Error importando desde Google Places:", err);
     res.status(500).json({
       error: "Error importando lugares",
@@ -148,4 +184,3 @@ router.get("/importar", async (req, res) => {
 });
 
 export default router;
-

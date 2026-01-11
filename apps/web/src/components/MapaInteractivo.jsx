@@ -19,19 +19,22 @@ import L from 'leaflet';
 // Iconos Phosphor organizados por secciones
 const categoryIcons = {
   // Alojamiento
-  Alojamiento: '<i class="ph ph-house"></i>',
+  Alojamiento: '<i class="ph ph-bed"></i>',
   Hotel: '<i class="ph ph-bed"></i>',
 
   // Comida y Bebida
   Restaurante: '<i class="ph ph-fork-knife"></i>',
   Cafetería: '<i class="ph ph-coffee"></i>',
   Bar: '<i class="ph ph-beer-bottle"></i>',
-  Panadería: '<i class="ph ph-bread"></i>',
+  Panadería: '<i class="ph ph-bread"></i>', 
+  'Comida para llevar': '<i class="ph ph-shopping-bag"></i>',
+  'Entrega de comida':'<i class="ph ph-fork-knife"></i>',
 
   // Compras
   Tienda: '<i class="ph ph-shopping-cart"></i>',
   'Centro comercial': '<i class="ph ph-storefront"></i>',
   Supermercado: '<i class="ph ph-shopping-bag"></i>',
+  'Tienda de licores': '<i class="ph ph-wine"></i>',
 
   // Transporte
   Aeropuerto: '<i class="ph ph-airplane"></i>',
@@ -42,6 +45,7 @@ const categoryIcons = {
   // Salud
   Hospital: '<i class="ph ph-first-aid-kit"></i>',
   Farmacia: '<i class="ph ph-first-aid"></i>',
+  Salud: '<i class="ph ph-first-aid"></i>',
 
   // Cultura y Ocio
   Museo: '<i class="ph ph-bank"></i>',
@@ -217,10 +221,10 @@ export default function MapaInteractivo({ lugares = [] }) {
         />
 
         {/* Marker coloca un pin en la posición guardada en el estado */}
-        <Marker position={posicion}>
-          {/* Popup es la ventanita que aparece al hacer clic en el marcador */}
+        {/* <Marker position={posicion}>
+          Popup es la ventanita que aparece al hacer clic en el marcador 
           <Popup>Ubicación seleccionada</Popup>
-        </Marker>
+        </Marker>*/}
 
 
         {lugares.map((lugar) => (
