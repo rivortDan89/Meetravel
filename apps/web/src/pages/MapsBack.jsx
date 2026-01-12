@@ -4,6 +4,7 @@ import MapaInteractivo from "../components/MapaInteractivo";
 export default function MapsBack() {
   const [lugares, setLugares] = useState([]);
   const [filtros, setFiltros] = useState({});
+  const [busqueda, setBusqueda] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +28,7 @@ export default function MapsBack() {
       });
   }, []);
 
-  const lugaresFiltrados = aplicarFiltros(lugares, filtros);
+  const lugaresFiltrados = aplicarFiltros(lugares, filtros, busqueda);
 
   return (
     <div className="maps-page">
@@ -42,16 +43,22 @@ export default function MapsBack() {
       <main className="maps-main">
         <section className="maps-filtros">
           <h2>Filtros de accesibilidad</h2>
-
+          <input
+            type="text"
+            placeholder="Buscar bar, restaurante, hotel, museo..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="maps-buscador"
+          />
           <label>
             <input
               type="checkbox"
-              checked={!!filtros.sillaRuedas}
+              checked={!!filtros.rampa}
               onChange={(e) =>
-                setFiltros((f) => ({ ...f, sillaRuedas: e.target.checked }))
+                setFiltros((f) => ({ ...f, rampa: e.target.checked }))
               }
             />
-            ♿ Silla de ruedas
+            ♿ Rampa
           </label>
 
           <label>
@@ -191,19 +198,44 @@ function Badge({ children }) {
   );
 }
 
-// Función que filtra lugares según las etiquetas seleccionadas
-function aplicarFiltros(lugares, filtros) {
-  return lugares.filter((lugar) => {
-    // Si hay filtros activos, el lugar debe cumplir TODOS
-    if (filtros.sillaRuedas && !lugar.sillaRuedas) return false;
-    if (filtros.aseoAdaptado && !lugar.aseoAdaptado) return false;
-    if (filtros.aparcamientoAccesible && !lugar.aparcamientoAccesible) return false;
-    if (filtros.ascensorPlataforma && !lugar.ascensorPlataforma) return false;
-    if (filtros.perroGuia && !lugar.perroGuia) return false;
-    if (filtros.infoAudio && !lugar.infoAudio) return false;
-    if (filtros.senaleticaBraille && !lugar.senaleticaBraille) return false;
-    if (filtros.infoSubtitulos && !lugar.infoSubtitulos) return false;
+function aplicarFiltros(lugares, filtros, busqueda = "") {
+  // Pasamos la cadena de búsqueda a minúsculas para hacer la comparación
+  // sin distinguir entre mayúsculas y minúsculas
+  const q = busqueda.toLowerCase();
 
-    return true;
-  });
+  return lugares
+    // 1) PRIMER FILTER: filtrar por texto (nombre o categoría)
+    .filter((lugar) => {
+      // Si no hay texto de búsqueda (q es cadena vacía),
+      // no filtramos por texto: dejamos pasar todos los lugares
+      if (!q) return true;
+
+      // Si hay texto, comprobamos:
+      // - que el nombre del lugar contenga q
+      // - O que la categoría del lugar contenga q
+      // Ej.: q = "restaurante" → pasa si nombre o categoría incluyen "restaurante"
+      return (
+        lugar.nombre.toLowerCase().includes(q) ||
+        lugar.categoria.toLowerCase().includes(q)
+      );
+    })
+    // 2) SEGUNDO FILTER: filtros de accesibilidad
+    .filter((lugar) => {
+      // Cada línea dice:
+      // "si este filtro está activado en `filtros` PERO el lugar
+      // no tiene esa característica, entonces excluye el lugar (return false)"
+
+      if (filtros.sillaRuedas && !lugar.sillaRuedas) return false;
+      if (filtros.aseoAdaptado && !lugar.aseoAdaptado) return false;
+      if (filtros.aparcamientoAccesible && !lugar.aparcamientoAccesible) return false;
+      if (filtros.ascensorPlataforma && !lugar.ascensorPlataforma) return false;
+      if (filtros.perroGuia && !lugar.perroGuia) return false;
+      if (filtros.infoAudio && !lugar.infoAudio) return false;
+      if (filtros.senaleticaBraille && !lugar.senaleticaBraille) return false;
+      if (filtros.infoSubtitulos && !lugar.infoSubtitulos) return false;
+
+      // Si pasa todas las comprobaciones anteriores,
+      // el lugar cumple todos los filtros activos → lo dejamos pasar
+      return true;
+    });
 }

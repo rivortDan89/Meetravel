@@ -26,7 +26,7 @@ const categoryIcons = {
   Restaurante: '<i class="ph ph-fork-knife"></i>',
   Cafetería: '<i class="ph ph-coffee"></i>',
   Bar: '<i class="ph ph-beer-bottle"></i>',
-  Panadería: '<i class="ph ph-bread"></i>', 
+  Panadería: '<i class="ph ph-storefront"></i>', 
   'Comida para llevar': '<i class="ph ph-shopping-bag"></i>',
   'Entrega de comida':'<i class="ph ph-fork-knife"></i>',
 
@@ -148,64 +148,20 @@ export default function MapaInteractivo({ lugares = [] }) {
         // Mostramos el error en la consola para poder ver qué ha pasado.
         console.error("Error geolocalización:", err);
         // Opcional: centramos en Madrid si falla
-        setPosicion([40.4168, -3.7038]);
+        setPosicion([37.9922, -1.1307]); // Murcia
       }
     );
     // [] indica que este efecto solo se ejecuta una vez, cuando el componente se monta.
   }, []);
-
-  // Ciudades predefinidas
-  const ciudades = {
-    madrid: [40.4168, -3.7038],
-    barcelona: [41.3874, 2.1686],
-    murcia: [37.9922, -1.1307],
-    valencia: [39.4697, -0.3763],
-    sevilla: [37.3769, -5.9957],
-    zaragoza: [41.6546, -0.8802],
-    palma: [39.5729, 2.6537],
-    sanSebastian: [43.3569, -1.7947],
-    vitoria: [42.8769, -2.6981],
-    valladolid: [41.6529, -4.7172],
-    gijon: [43.5329, -5.6757],
-    bilbao: [43.2659, -2.9322],
-    sanFernando: [28.4168, -16.7038],
-  };
-
-  // Cuando cambia la ciudad en el select
-  function manejarCambioCiudad(e) {
-    const valor = e.target.value;      // "madrid" | "barcelona" | ...
-    const coords = ciudades[valor];
-    if (coords) {
-      setPosicion(coords);            // el mapa se mueve a esa ciudad
-    }
-  }
 
   // Mientras no tenemos posición, mostramos un mensaje
   if (!posicion) {
     return <p>Cargando mapa con tu ubicación…</p>;
   }
 
-  // Cuando ya hay posición, pintamos el mapa
-  return (
-    <>
-      {/* Selector de ciudad */}
-      <select onChange={manejarCambioCiudad} defaultValue="">
-        <option value="" disabled>Elige ciudad</option>
-        <option value="madrid">Madrid</option>
-        <option value="barcelona">Barcelona</option>
-        <option value="murcia">Murcia</option>
-        <option value="valencia">Valencia</option>
-        <option value="sevilla">Sevilla</option>
-        <option value="zaragoza">Zaragoza</option>
-        <option value="palma">Palma de Mallorca</option>
-        <option value="sanSebastian">San Sebastián</option>
-        <option value="vitoria">Vitoria-Gasteiz</option>
-        <option value="valladolid">Valladolid</option>
-        <option value="gijon">Gijón</option>
-        <option value="bilbao">Bilbao</option>
-        <option value="sanFernando">San Fernando</option>
-      </select>
-
+// Cuando ya hay posición, devolvemos el mapa
+return (
+  <>
       {/* MapContainer crea el mapa de Leaflet dentro de este div */}
       <MapContainer
         center={posicion}                          // Centro actual del mapa
