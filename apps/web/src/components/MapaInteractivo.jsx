@@ -19,58 +19,42 @@ import L from 'leaflet';
 // Iconos Phosphor organizados por secciones
 const categoryIcons = {
   // Alojamiento
-  'hotel': '<i class="ph ph-bed"></i>',
-  'alojamiento': '<i class="ph ph-house"></i>',
-  'hostal': '<i class="ph ph-building"></i>',
+  Alojamiento: '<i class="ph ph-bed"></i>',
+  Hotel: '<i class="ph ph-bed"></i>',
 
   // Comida y Bebida
-  'restaurante': '<i class="ph ph-fork-knife"></i>',
-  'café': '<i class="ph ph-coffee"></i>',
-  'bar': '<i class="ph ph-beer-bottle"></i>',
-  'panadería': '<i class="ph ph-bread"></i>',
+  Restaurante: '<i class="ph ph-fork-knife"></i>',
+  Cafetería: '<i class="ph ph-coffee"></i>',
+  Bar: '<i class="ph ph-beer-bottle"></i>',
+  Panadería: '<i class="ph ph-storefront"></i>', 
+  'Comida para llevar': '<i class="ph ph-shopping-bag"></i>',
+  'Entrega de comida':'<i class="ph ph-fork-knife"></i>',
 
   // Compras
-  'tienda': '<i class="ph ph-shopping-cart"></i>',
-  'centro_comercial': '<i class="ph ph-storefront"></i>',
-  'supermercado': '<i class="ph ph-shopping-bag"></i>',
+  Tienda: '<i class="ph ph-shopping-cart"></i>',
+  'Centro comercial': '<i class="ph ph-storefront"></i>',
+  Supermercado: '<i class="ph ph-shopping-bag"></i>',
+  'Tienda de licores': '<i class="ph ph-wine"></i>',
 
   // Transporte
-  'estación_tren': '<i class="ph ph-train"></i>',
-  'estación_autobús': '<i class="ph ph-bus"></i>',
-  'aeropuerto': '<i class="ph ph-airplane"></i>',
-  'parada_metro': '<i class="ph ph-subway"></i>',
-  'parking': '<i class="ph ph-car"></i>',
-
+  Aeropuerto: '<i class="ph ph-airplane"></i>',
+  'Estación de tren': '<i class="ph ph-train"></i>',
+  'Estación de autobús': '<i class="ph ph-bus"></i>',
+  Aparcamiento: '<i class="ph ph-car"></i>',
+  Gasolinera: '<i class="ph ph-gas-pump"></i>',
   // Salud
-  'hospital': '<i class="ph ph-first-aid-kit"></i>',
-  'farmacia': '<i class="ph ph-first-aid"></i>',
-  'clínica': '<i class="ph ph-heart-pulse"></i>',
+  Hospital: '<i class="ph ph-first-aid-kit"></i>',
+  Farmacia: '<i class="ph ph-first-aid"></i>',
+  Salud: '<i class="ph ph-first-aid"></i>',
 
   // Cultura y Ocio
-  'museo': '<i class="ph ph-bank"></i>',
-  'teatro': '<i class="ph ph-masks-theater"></i>',
-  'cine': '<i class="ph ph-film-strip"></i>',
-  'biblioteca': '<i class="ph ph-books"></i>',
-  'parque': '<i class="ph ph-tree"></i>',
-  'gimnasio': '<i class="ph ph-barbell"></i>',
-  'piscina': '<i class="ph ph-swimming-pool"></i>',
+  Museo: '<i class="ph ph-bank"></i>',
+  Parque: '<i class="ph ph-tree"></i>',
+  'Atracción turística': '<i class="ph ph-map-pin"></i>',
+  Gimnasio: '<i class="ph ph-barbell"></i>',
+  Spa: '<i class="ph ph-drop"></i>',
 
-  // Servicios
-  'banco': '<i class="ph ph-bank"></i>',
-  'oficina_correos': '<i class="ph ph-envelope"></i>',
-  'gasolinera': '<i class="ph ph-gas-pump"></i>',
-  'ayuntamiento': '<i class="ph ph-buildings"></i>',
-  'comisaría': '<i class="ph ph-shield-check"></i>',
-
-  // Educación
-  'escuela': '<i class="ph ph-graduation-cap"></i>',
-  'universidad': '<i class="ph ph-student"></i>',
-
-  // Turismo
-  'punto_interés': '<i class="ph ph-map-pin"></i>',
-  'monumento': '<i class="ph ph-monument"></i>',
-  'mirador': '<i class="ph ph-binoculars"></i>',
-  'playa': '<i class="ph ph-umbrella-simple"></i>',
+ 
 
   // Por defecto
   'default': '<i class="ph ph-map-pin-line"></i>'
@@ -164,64 +148,20 @@ export default function MapaInteractivo({ lugares = [] }) {
         // Mostramos el error en la consola para poder ver qué ha pasado.
         console.error("Error geolocalización:", err);
         // Opcional: centramos en Madrid si falla
-        setPosicion([40.4168, -3.7038]);
+        setPosicion([37.9922, -1.1307]); // Murcia
       }
     );
     // [] indica que este efecto solo se ejecuta una vez, cuando el componente se monta.
   }, []);
-
-  // Ciudades predefinidas
-  const ciudades = {
-    madrid: [40.4168, -3.7038],
-    barcelona: [41.3874, 2.1686],
-    murcia: [37.9922, -1.1307],
-    valencia: [39.4697, -0.3763],
-    sevilla: [37.3769, -5.9957],
-    zaragoza: [41.6546, -0.8802],
-    palma: [39.5729, 2.6537],
-    sanSebastian: [43.3569, -1.7947],
-    vitoria: [42.8769, -2.6981],
-    valladolid: [41.6529, -4.7172],
-    gijon: [43.5329, -5.6757],
-    bilbao: [43.2659, -2.9322],
-    sanFernando: [28.4168, -16.7038],
-  };
-
-  // Cuando cambia la ciudad en el select
-  function manejarCambioCiudad(e) {
-    const valor = e.target.value;      // "madrid" | "barcelona" | ...
-    const coords = ciudades[valor];
-    if (coords) {
-      setPosicion(coords);            // el mapa se mueve a esa ciudad
-    }
-  }
 
   // Mientras no tenemos posición, mostramos un mensaje
   if (!posicion) {
     return <p>Cargando mapa con tu ubicación…</p>;
   }
 
-  // Cuando ya hay posición, pintamos el mapa
-  return (
-    <>
-      {/* Selector de ciudad */}
-      <select onChange={manejarCambioCiudad} defaultValue="">
-        <option value="" disabled>Elige ciudad</option>
-        <option value="madrid">Madrid</option>
-        <option value="barcelona">Barcelona</option>
-        <option value="murcia">Murcia</option>
-        <option value="valencia">Valencia</option>
-        <option value="sevilla">Sevilla</option>
-        <option value="zaragoza">Zaragoza</option>
-        <option value="palma">Palma de Mallorca</option>
-        <option value="sanSebastian">San Sebastián</option>
-        <option value="vitoria">Vitoria-Gasteiz</option>
-        <option value="valladolid">Valladolid</option>
-        <option value="gijon">Gijón</option>
-        <option value="bilbao">Bilbao</option>
-        <option value="sanFernando">San Fernando</option>
-      </select>
-
+// Cuando ya hay posición, devolvemos el mapa
+return (
+  <>
       {/* MapContainer crea el mapa de Leaflet dentro de este div */}
       <MapContainer
         center={posicion}                          // Centro actual del mapa
@@ -237,10 +177,10 @@ export default function MapaInteractivo({ lugares = [] }) {
         />
 
         {/* Marker coloca un pin en la posición guardada en el estado */}
-        <Marker position={posicion}>
-          {/* Popup es la ventanita que aparece al hacer clic en el marcador */}
+        {/* <Marker position={posicion}>
+          Popup es la ventanita que aparece al hacer clic en el marcador 
           <Popup>Ubicación seleccionada</Popup>
-        </Marker>
+        </Marker>*/}
 
 
         {lugares.map((lugar) => (

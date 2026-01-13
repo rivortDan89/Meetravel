@@ -20,7 +20,7 @@ app.use(express.json());
 // rutas con prefijo
 app.use("/health", healthRoutes);
 app.use("/etiquetas", etiquetasRoutes);
-app.use("/lugares-accesibles", lugaresRoutes);
+app.use('/api/lugares', lugaresRoutes);
 app.use("/google-places", googlePlacesRouter);
 
 const PORT = process.env.PORT || 3001;

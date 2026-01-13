@@ -1,7 +1,7 @@
 -- ======================================
 -- BASE DE DATOS
 -- ======================================
-CREATE DATABASE IF NOT EXISTS proyecto_viajes
+CREATE DATABASE IF NOT EXISTS meetravel
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
@@ -213,3 +213,4 @@ CREATE TABLE resena_accesibilidad (
   FOREIGN KEY (id_etiqueta) REFERENCES etiqueta(id_etiqueta)
     ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
