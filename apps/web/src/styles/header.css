@@ -1,48 +1,60 @@
-.mtHeader {
-  background: #163932;
-  color: #fff;
+.header {
   height: 64px;
-  display: flex;
-  align-items: center;
-}
-
-.mtHeader__inner {
-  width: min(1200px, calc(100% - 48px));
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.mtHeader__logo {
+  background: var(--green);
   color: #fff;
-  text-decoration: none;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+
+  display: flex;
+  align-items: center;
+
+  font-family: var(--font-text);
+  font-size: 15px;
+  font-weight: 400;
 }
 
-.mtHeader__nav {
+.header__inner {
+  width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.header__pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  background: rgba(252, 248, 234, 0.08);
+  border: 1px solid rgba(252, 248, 234, 0.35);
+
+  color: rgba(252, 248, 234, 1);
+  text-decoration: none;
+}
+
+.header__logo img {
+  height: 26px;
+  width: auto;
+}
+
+.header__right {
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.mtHeader__link {
+.header__link {
   color: #fff;
   text-decoration: none;
-  font-size: 14px;
   opacity: 0.9;
 }
 
-.mtHeader__link:hover {
-  opacity: 1;
-}
-
-.mtHeader__btn {
-  background: #B6361C;
+.header__btn {
+  background: var(--red);
   color: #fff;
   text-decoration: none;
-  font-size: 14px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-radius: 999px;
 }

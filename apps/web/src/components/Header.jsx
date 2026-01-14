@@ -3,16 +3,21 @@ import "../styles/header.css";
 
 export default function Header() {
   return (
-    <header className="mtHeader">
-      <div className="mtHeader__inner">
-        <Link to="/" className="mtHeader__logo" aria-label="MeeTravel">
-          MeeTravel
+    <header className="header">
+      <div className="header__inner">
+        <div className="header__left">
+          <Link className="header__pill" to="/maps">
+            Maps
+          </Link>
+        </div>
+
+        <Link className="header__logo" to="/" aria-label="Ir al inicio">
+          <img src="/images/logo-blanco.svg" alt="MeeTravel" />
         </Link>
 
-        <nav className="mtHeader__nav">
-          <Link to="/maps" className="mtHeader__link">Maps</Link>
-          <a className="mtHeader__link" href="#!">Iniciar sesión</a>
-          <a className="mtHeader__btn" href="#!">Registrarse</a>
+        <nav className="header__right">
+          <a className="header__link" href="#!">Iniciar sesión</a>
+          <a className="header__btn" href="#!">Registrarse</a>
         </nav>
       </div>
     </header>

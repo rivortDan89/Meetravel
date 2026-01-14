@@ -1,75 +1,69 @@
-<<<<<<< HEAD
-import MapaInteractivo from "../components/MapaInteractivo";
+import { useEffect, useMemo, useState } from "react";
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import "../styles/maps.css";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Maps() {
-=======
-// Importa los hooks de React y el componente del mapa
-import { useEffect, useState } from "react";
-import MapaInteractivo from "../components/MapaInteractivo";
+  const [places, setPlaces] = useState([]);
+  const [status, setStatus] = useState("Cargando...");
 
-export default function Maps() {
-  // Estado para guardar los lugares que vienen de la API
-  const [lugares, setLugares] = useState([]);
-  // Estado para guardar un posible mensaje de error
-  const [error, setError] = useState("");
-  // Estado para saber si todavía estamos cargando los datos
-  const [loading, setLoading] = useState(true);
-
-  // useEffect se ejecuta una vez al montar el componente ([]) 
-  // y hace la petición al backend
   useEffect(() => {
-    // URL base de la API: primero mira la variable de entorno
-    // y si no existe usa http://localhost:3001
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-
-    // Petición HTTP GET a /api/lugares
-    fetch(`${apiUrl}/api/lugares`)
-      .then((r) => {
-        // Si la respuesta no es 2xx, lanzamos un error para que lo capture el catch
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        // Convertimos la respuesta a JSON
-        return r.json();
-      })
+    fetch(`${API_URL}/lugares-accesibles`)
+      .then((r) => r.json())
       .then((data) => {
-        // Mostramos por consola los lugares recibidos (útil para debug)
-        console.log("✅ Lugares cargados:", data);
-        // Guardamos los lugares en el estado
-        setLugares(data);
-        // Marcamos que ya ha terminado la carga
-        setLoading(false);
+        setPlaces(Array.isArray(data) ? data : []);
+        setStatus("OK");
       })
-      .catch((e) => {
-        // Si algo falla (red, servidor, etc.), lo mostramos en consola
-        console.error("❌ Error:", e);
-        // Guardamos el mensaje de error para mostrarlo en pantalla
-        setError(e.message);
-        // También paramos el estado de carga
-        setLoading(false);
-      });
-  }, []); // El array vacío hace que solo se ejecute una vez al montar el componente
+      .catch(() => setStatus("Error cargando lugares"));
+  }, []);
 
-  // Mientras se están cargando los datos, mostramos un texto de "Cargando..."
-  if (loading) return <p>Cargando lugares...</p>;
->>>>>>> 48b3bc1d54da60e2233aeb1f8c34196a16c5b867
+  const center = useMemo(() => {
+    if (places[0]?.lat && places[0]?.lng) return [Number(places[0].lat), Number(places[0].lng)];
+    return [40.4168, -3.7038];
+  }, [places]);
 
-  // Si hubo un error, mostramos el mensaje de error
-  if (error) return <p className="error">Error: {error}</p>;
-
-  // Si todo fue bien, renderizamos el mapa interactivo
-  // y le pasamos los lugares como prop
   return (
-<<<<<<< HEAD
-    <div className="maps-page">
-      <section className="maps-map-section">
-        <MapaInteractivo />
-      </section>
-    </div>
+    <main className="mapsPage">
+      <div className="mapsLayout">
+        <section className="mapsBox">
+          <MapContainer center={center} zoom={13} scrollWheelZoom>
+            <TileLayer
+              attribution="&copy; OpenStreetMap"
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            {places.map((p) => (
+              <CircleMarker
+                key={p.id ?? p.placeId ?? `${p.lat}-${p.lng}`}
+                center={[Number(p.lat), Number(p.lng)]}
+                radius={8}
+                pathOptions={{ color: "#b6361c" }}
+              >
+                <Popup>
+                  <strong>{p.nombre ?? "Lugar"}</strong>
+                  <div>{p.direccion ?? "Sin dirección"}</div>
+                </Popup>
+              </CircleMarker>
+            ))}
+          </MapContainer>
+        </section>
+
+        <aside className="panel">
+          <h1 className="panel__title">Mapa de accesibilidad</h1>
+          <p className="panel__status">Estado: {status}</p>
+
+          <div className="panel__list">
+            {places.map((p) => (
+              <div key={p.id ?? p.placeId ?? p.nombre} className="placeItem">
+                <div className="placeItem__name">{p.nombre ?? "Lugar"}</div>
+                <div className="placeItem__meta">{p.ciudad ?? "—"}</div>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
+    </main>
   );
 }
-=======
-    <section className="maps-map-section">
-      <MapaInteractivo lugares={lugares} />
-    </section>
-  );
-}
->>>>>>> 48b3bc1d54da60e2233aeb1f8c34196a16c5b867
