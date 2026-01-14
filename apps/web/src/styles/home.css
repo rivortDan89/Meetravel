@@ -89,18 +89,23 @@
   font-family: var(--font-text);
   font-weight: 400;
   font-size: 15px;
-  /* <- esto es lo que pediste */
+
+  text-align: left;
 }
 
 .homeSearch__item {
   padding: 0 10px;
   color: #666;
   white-space: nowrap;
+
+  text-align: left;
 }
 
 .homeSearch__item--grow {
   flex: 1;
   color: #999;
+
+  text-align: left;
 }
 
 .homeSearch__divider {
