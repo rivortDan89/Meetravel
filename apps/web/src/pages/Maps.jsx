@@ -219,7 +219,7 @@ export default function Maps() {
                   {p.categoria ?? "—"} · {p.direccion ?? "Sin dirección"}
                 </div>
 
-                {/* Etiquetas de accesibilidad (todas las que tengan media >= 2.5) */}
+                {/* Etiquetas de accesibilidad con media de puntuación(todas las que tengan media >= 2.5) */}
                 <div className="placeItem__tags">
                   {p.avgRampa >= 2.5 && (
                     <span className="tag tag--ok">

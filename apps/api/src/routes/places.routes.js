@@ -6,7 +6,7 @@ import { pool } from "../config/db.js";
 // Crea una instancia de router donde definiremos los endpoints de lugares
 const router = Router();
 
-// Ruta GET /  (cuando se monte como /api/lugares será GET /api/lugares)
+// Ruta GET /  (cuando se monte como /api/palces será GET /api/places)
 router.get("/", async (req, res) => {
   try {
     // 1) Consulta SQL:
