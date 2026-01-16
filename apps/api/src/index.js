@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import healthRoutes from "./routes/health.routes.js";
 import etiquetasRoutes from "./routes/etiquetas.routes.js";
-import lugaresRoutes from "./routes/lugares.routes.js";
+import placesRoutes from "./routes/places.routes.js";
 import googlePlacesRouter from "./routes/googleplaces.routes.js";
 
 dotenv.config();
@@ -20,7 +20,7 @@ app.use(express.json());
 // rutas con prefijo
 app.use("/health", healthRoutes);
 app.use("/etiquetas", etiquetasRoutes);
-app.use('/api/lugares', lugaresRoutes);
+app.use("/api/places", placesRoutes);
 app.use("/google-places", googlePlacesRouter);
 
 const PORT = process.env.PORT || 3001;
