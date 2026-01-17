@@ -6,7 +6,7 @@ import { pool } from "../config/db.js";
 // Crea una instancia de router donde definiremos los endpoints de lugares
 const router = Router();
 
-// Ruta GET /  (cuando se monte como /api/lugares será GET /api/lugares)
+// Ruta GET /  (cuando se monte como /api/palces será GET /api/places)
 router.get("/", async (req, res) => {
   try {
     // 1) Consulta SQL:
@@ -56,7 +56,7 @@ router.get("/", async (req, res) => {
       google_place_id: row.google_place_id,
 
       // Notas medias por etiqueta (por si se quieren mostrar en la UI)
-      avgSillaRuedas: row.avg_rampa,
+      avgRampa: row.avg_rampa,
       avgAseoAdaptado: row.avg_aseo_adaptado,
       avgAparcamientoAccesible: row.avg_aparcamiento_accesible,
       avgAscensorPlataforma: row.avg_ascensor_plataforma,
@@ -67,7 +67,7 @@ router.get("/", async (req, res) => {
 
       // Banderas booleanas de accesibilidad:
       // true solo si la media de esa etiqueta es >= THRESHOLD (2.5)
-      sillaRuedas: row.avg_rampa >= THRESHOLD,
+      rampa: row.avg_rampa >= THRESHOLD,
       aseoAdaptado: row.avg_aseo_adaptado >= THRESHOLD,
       aparcamientoAccesible: row.avg_aparcamiento_accesible >= THRESHOLD,
       ascensorPlataforma: row.avg_ascensor_plataforma >= THRESHOLD,
@@ -89,6 +89,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Exporta el router para usarlo en el servidor principal con app.use("/api/lugares", router)
+// Exporta el router para usarlo en el servidor principal con app.use("/api/places", placesRoutes)
 export default router;
 

@@ -1,6 +1,8 @@
 // Importamos React y el hook useState para manejar estado (valores que cambian)
 import { useState, useEffect } from "react";
-
+// Importamos el CSS de Leaflet para que se vean bien el mapa, controles e iconos
+import "leaflet/dist/leaflet.css";
+import L from 'leaflet';
 
 // Importamos los componentes de React-Leaflet que usaremos en el mapa
 import {
@@ -12,9 +14,9 @@ import {
   useMap         // Hook para acceder a la instancia del mapa
 } from "react-leaflet";
 
-// Importamos el CSS de Leaflet para que se vean bien el mapa, controles e iconos
-import "leaflet/dist/leaflet.css";
-import L from 'leaflet';
+
+// Centro de Murcia (aprox. Plaza Circular / Gran Vía)
+const MURCIA_CENTER = [37.9892, -1.1306];
 
 // Iconos Phosphor organizados por secciones
 const categoryIcons = {
@@ -26,9 +28,9 @@ const categoryIcons = {
   Restaurante: '<i class="ph ph-fork-knife"></i>',
   Cafetería: '<i class="ph ph-coffee"></i>',
   Bar: '<i class="ph ph-beer-bottle"></i>',
-  Panadería: '<i class="ph ph-storefront"></i>', 
+  Panadería: '<i class="ph ph-storefront"></i>',
   'Comida para llevar': '<i class="ph ph-shopping-bag"></i>',
-  'Entrega de comida':'<i class="ph ph-fork-knife"></i>',
+  'Entrega de comida': '<i class="ph ph-fork-knife"></i>',
 
   // Compras
   Tienda: '<i class="ph ph-shopping-cart"></i>',
@@ -54,7 +56,7 @@ const categoryIcons = {
   Gimnasio: '<i class="ph ph-barbell"></i>',
   Spa: '<i class="ph ph-drop"></i>',
 
- 
+
 
   // Por defecto
   'default': '<i class="ph ph-map-pin-line"></i>'
@@ -128,7 +130,7 @@ export default function MapaInteractivo({ lugares = [] }) {
   // Lo inicializamos a null, es decir, al cargar la página todavía no tenemos coordenadas.
   const [posicion, setPosicion] = useState(null);
 
-  // useEffect se ejecuta una vez al montar el componente (por el array [] vacío).
+  /* useEffect se ejecuta una vez al montar el componente (por el array [] vacío).
   useEffect(() => {
     // Si el navegador no soporta geolocalización, salimos y no hacemos nada.
     if (!navigator.geolocation) return;
@@ -147,33 +149,31 @@ export default function MapaInteractivo({ lugares = [] }) {
       (err) => {
         // Mostramos el error en la consola para poder ver qué ha pasado.
         console.error("Error geolocalización:", err);
-        // Opcional: centramos en Madrid si falla
-        setPosicion([37.9922, -1.1307]); // Murcia
+        
+        setPosicion([37.9892, -1.1306]); // Murcia
       }
     );
     // [] indica que este efecto solo se ejecuta una vez, cuando el componente se monta.
   }, []);
-
-  // Mientras no tenemos posición, mostramos un mensaje
+    */
+  /* Mientras no tenemos posición, mostramos un mensaje
   if (!posicion) {
     return <p>Cargando mapa con tu ubicación…</p>;
   }
-
-// Cuando ya hay posición, devolvemos el mapa
-return (
-  <>
+  */
+  // Cuando ya hay posición, devolvemos el mapa
+  return (
+    <>
       {/* MapContainer crea el mapa de Leaflet dentro de este div */}
       <MapContainer
-        center={posicion}                          // Centro actual del mapa
+        center={MURCIA_CENTER}                          // Centro actual del mapa
         zoom={13}                                  // Nivel de zoom (más alto = más cerca)
-        style={{ height: "500px", width: "100%" }} // Tamaño del mapa en la página
+        style={{ height: "100%", width: "100%" }} // Tamaño del mapa en la página
       >
         {/* TileLayer pinta el fondo del mapa usando los tiles de OpenStreetMap */}
         <TileLayer
-          // Patrón de URL de los tiles: {z}=zoom, {x} y {y}=coordenadas de las imágenes
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          // Texto de atribución legal obligatorio para usar datos de OpenStreetMap
-          attribution="© OpenStreetMap contributors, © CARTO"
+          url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
+          attribution="&copy; OpenMapTiles &copy; OpenStreetMap contributors"
         />
 
         {/* Marker coloca un pin en la posición guardada en el estado */}
@@ -237,7 +237,7 @@ return (
                     flexWrap: 'wrap',
                     gap: '5px'
                   }}>
-                    {lugar.sillaRuedas && <PopupBadge color="#10b981">♿ Silla ruedas</PopupBadge>}
+                    {lugar.rampa && <PopupBadge color="#10b981">♿ Rampa</PopupBadge>}
                     {lugar.aseoAdaptado && <PopupBadge color="#3b82f6">🚻 Aseo</PopupBadge>}
                     {lugar.aparcamientoAccesible && <PopupBadge color="#8b5cf6">🅿️ Parking</PopupBadge>}
                     {lugar.ascensorPlataforma && <PopupBadge color="#f59e0b">🛗 Ascensor</PopupBadge>}
@@ -246,7 +246,7 @@ return (
                     {lugar.senaleticaBraille && <PopupBadge color="#6366f1">👆 Braille</PopupBadge>}
                     {lugar.infoSubtitulos && <PopupBadge color="#ef4444">📝 Subtítulos</PopupBadge>}
 
-                    {!lugar.sillaRuedas && !lugar.aseoAdaptado && !lugar.aparcamientoAccesible &&
+                    {!lugar.rampa && !lugar.aseoAdaptado && !lugar.aparcamientoAccesible &&
                       !lugar.ascensorPlataforma && !lugar.perroGuia && !lugar.infoAudio &&
                       !lugar.senaleticaBraille && !lugar.infoSubtitulos && (
                         <span style={{ fontSize: '12px', color: '#999' }}>

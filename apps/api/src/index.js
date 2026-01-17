@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 import healthRoutes from "./routes/health.routes.js";
 import etiquetasRoutes from "./routes/etiquetas.routes.js";
-import lugaresRoutes from "./routes/lugares.routes.js";
+import placesRoutes from "./routes/places.routes.js";
 import googlePlacesRouter from "./routes/googleplaces.routes.js";
 
 import { pool } from "./db.js";
@@ -19,7 +19,7 @@ app.use(express.json());
 // Rutas
 app.use("/health", healthRoutes);
 app.use("/etiquetas", etiquetasRoutes);
-app.use("/api/lugares", lugaresRoutes);
+app.use('/api/lugares', lugaresRoutes);
 app.use("/google-places", googlePlacesRouter);
 
 // Ruta de prueba BD (muy útil para depurar)
