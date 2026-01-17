@@ -23,14 +23,16 @@ app.use("/api/lugares", lugaresRoutes);
 app.use("/google-places", googlePlacesRouter);
 
 // Ruta de prueba BD (muy útil para depurar)
-app.get("/db-test", async (req, res) => {
-  try {
-    const [rows] = await pool.query("SELECT 1 AS ok");
-    res.json({ ok: true, rows });
-  } catch (error) {
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
+if (process.env.NODE_ENV !== "production") {
+  app.get("/db-test", async (req, res) => {
+    try {
+      const [rows] = await pool.query("SELECT 1 AS ok");
+      res.json({ ok: true, rows });
+    } catch (error) {
+      res.status(500).json({ ok: false, error: error.message });
+    }
+  });
+}
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`API running on port ${PORT}`));

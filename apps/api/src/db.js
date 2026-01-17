@@ -17,9 +17,10 @@ connectionLimit: 10,
 queueLimit: 0,
 
   // Railway muchas veces requiere SSL; si no, no conecta.
-ssl: useSSL ? { rejectUnauthorized: false } : undefined,
+  ssl: useSSL ? { rejectUnauthorized: false } : undefined,
 
-  // Evita el error típico: "Public Key Retrieval is not allowed"
+  // Activa TCP keep-alive para mantener vivas las conexiones inactivas.
+  // Útil para evitar que algunos proveedores cierren conexiones ociosas.
   // (en algunos entornos MySQL 8+ / auth caching_sha2_password)
 enableKeepAlive: true
 });
