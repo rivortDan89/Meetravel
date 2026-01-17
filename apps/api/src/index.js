@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 import healthRoutes from "./routes/health.routes.js";
 import etiquetasRoutes from "./routes/etiquetas.routes.js";
-import placesRoutes from "./routes/places.routes.js";
+import lugaresRoutes from "./routes/places.routes.js";
 import googlePlacesRouter from "./routes/googleplaces.routes.js";
 
 import { pool } from "./db.js";
