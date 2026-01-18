@@ -19,7 +19,7 @@ app.use(express.json());
 // Rutas
 app.use("/health", healthRoutes);
 app.use("/etiquetas", etiquetasRoutes);
-app.use('/api/lugares', lugaresRoutes);
+app.use('/api/places', lugaresRoutes);
 app.use("/google-places", googlePlacesRouter);
 
 // Ruta de prueba BD (muy útil para depurar)
