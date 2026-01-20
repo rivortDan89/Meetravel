@@ -1,10 +1,10 @@
-/* RESET básico */
 * {
   box-sizing: border-box;
 }
 
 html,
-body {
+body,
+#root {
   height: 100%;
 }
 
@@ -12,7 +12,6 @@ body {
   margin: 0;
 }
 
-/* Layout base */
 .appShell {
   min-height: 100vh;
   display: flex;
@@ -21,6 +20,9 @@ body {
 
 .appMain {
   flex: 1;
-  /* <- esto hace que el main ocupe el espacio entre header y footer */
-  display: block;
+  display: flex;
+}
+
+.appMain>* {
+  flex: 1;
 }

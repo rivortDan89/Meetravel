@@ -16,10 +16,16 @@ export default function App() {
         <main className="appMain">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/maps" element={<Maps />} />
-            <Route path="/maps-back" element={<MapsBack />} /> {/* prueba/equipo */}
+
+            {/* Maps estático por pantallas (para demo/diseño) */}
+            <Route path="/maps" element={<Maps view="lista" />} />
+            <Route path="/maps/vacio" element={<Maps view="vacio" />} />
+            <Route path="/maps/detalle" element={<Maps view="detalle" />} />
+
+            <Route path="/maps-back" element={<MapsBack />} />
           </Routes>
         </main>
+
         <Footer />
       </div>
     </BrowserRouter>
