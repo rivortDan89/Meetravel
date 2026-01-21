@@ -5,8 +5,17 @@ import "../styles/maps.css";
 // Importa el componente que pinta el mapa de Leaflet con los marcadores
 import MapaInteractivo from "../components/MapaInteractivo";
 
+/*Cuando más abajo explico los componentes de barra buscador, filtrado por accesibilidad 
+ y las tarjetas individuales con media puntuación de las reseñas de accesibilidad en el caso de que se exportaran
+  deberiamos de poner en Maps.jsx arriba del todo esto :
+import SearchBar from "../components/SearchBar";
+import FiltersBar from "../components/FiltersBar";
+import PlacesList from "../components/PlacesList"; */
+
 // URL base de la API; usa la variable de entorno o localhost por defecto
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+
 // Normaliza un texto para compararlo sin distinguir mayúsculas ni tildes
 function normalize(text = "") {
   return text
@@ -97,7 +106,10 @@ export default function MapsBack() {
 
         {/* Columna derecha: panel con buscador y lista de lugares */}
         <aside className="panel">
-          {/* Buscador por nombre/categoría */}
+
+          {/* Buscador por nombre/categoría que se exportaría en un componente llamado SearchBar.jsx 
+          que se debe guardar en src/components */}
+          
           <input
             type="text"
             placeholder="Buscar bar, restaurante, hotel, museo..."
@@ -105,8 +117,12 @@ export default function MapsBack() {
             onChange={(e) => setSearch(e.target.value)}
             className="maps-buscador"
           />
+
+          {/* Contenedor de los botones de filtros, para maquetarlos en fila que se puede exportar como un
+           componente llamado  FiltersBar.jsx que se debe guardar en src/components */}
+
           <div className="filters-row">
-            {/* Contenedor de los botones de filtros, para maquetarlos en fila */}
+            
 
             {/* Rampa */}
             <button
@@ -210,7 +226,9 @@ export default function MapsBack() {
           <h1 className="panel__title">Lugares populares en la zona</h1>
 
 
-          {/* Lista de tarjetas de lugares (ya filtrados) */}
+          {/* Lista de tarjetas de lugares (ya filtrados) , con media de puntuación( solo nos 
+          aparecerá si la media de alguna etiqueta es mayor de 2.5). Se debe exportar el componente llamado PlaceItem.jsx
+           que se puede guardar en src/components */}
           <div className="panel__list">
             {filteredPlaces.map((p) => (
               <div key={p.id ?? p.placeId ?? p.nombre} className="placeItem">
