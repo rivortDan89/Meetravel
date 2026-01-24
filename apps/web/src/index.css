@@ -11,18 +11,3 @@ body,
 body {
   margin: 0;
 }
-
-.appShell {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.appMain {
-  flex: 1;
-  display: flex;
-}
-
-.appMain>* {
-  flex: 1;
-}

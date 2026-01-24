@@ -17,7 +17,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
 
-            {/* Maps estático por pantallas (para demo/diseño) */}
+            {/* Maps estático por pantallas */}
             <Route path="/maps" element={<Maps view="lista" />} />
             <Route path="/maps/vacio" element={<Maps view="vacio" />} />
             <Route path="/maps/detalle" element={<Maps view="detalle" />} />

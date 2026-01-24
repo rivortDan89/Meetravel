@@ -24,7 +24,8 @@ export default function PanelLista() {
       <div className="chips">
         <button className="chip chipOn" type="button">Acceso</button>
         <button className="chip chipOn" type="button">Entrada</button>
-        <button className="chip" type="button">Baño</button>
+        <button className="chip chipOn" type="button">Baño</button>
+        <button className="chip" type="button">Rampa</button>
       </div>
 
       <h2 className="panelTitle">Lugares populares en la zona</h2>

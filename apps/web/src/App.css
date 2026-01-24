@@ -36,24 +36,14 @@ img {
 }
 
 .appShell {
-  height: 100%;
-  /* <- CLAVE para que height:100% funcione */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* El main tiene que “dar altura” a la página de dentro */
 .appMain {
   flex: 1;
   min-height: 0;
-  /* <- CLAVE para evitar colapsos con overflow/100% */
   display: flex;
   flex-direction: column;
-}
-
-/* La página (Home/Maps/lo que toque) ocupa todo el alto disponible */
-.appMain>* {
-  flex: 1;
-  min-height: 0;
 }
