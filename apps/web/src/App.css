@@ -13,6 +13,12 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
   background: var(--cream);
@@ -27,4 +33,17 @@ a {
 img {
   display: block;
   height: auto;
+}
+
+.appShell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.appMain {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }

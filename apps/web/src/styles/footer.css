@@ -1,7 +1,6 @@
 .footer {
   background: var(--green);
   color: rgba(252, 248, 234, 1);
-  margin-top: 60px;
 
   font-family: var(--font-text);
   font-size: 15px;
