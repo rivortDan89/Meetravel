@@ -10,13 +10,34 @@ import MapaInteractivo from "../components/MapaInteractivo";
   deberiamos de poner en Maps.jsx arriba del todo esto :
 import SearchBar from "../components/SearchBar";
 import FiltersBar from "../components/FiltersBar";
-import PlacesList from "../components/PlacesList"; */
+import PlacesList from "../components/PlacesList"; 
+import PlaceItem from "../components/PlaceItem";
+*/
+/*
+Y EN EL RESTO DEL CÓDIGO TENDRÍAS QUE PONER EN EL APARTADO DE MAPS DONDE QUIERAS PONER ESTOS COMPONENTES COMO POR EJEMPLO EN EL PANEL LATERAL:
+<aside className="panel">
+  {/* Buscador */ /*}
+ /* <SearchBar search={search} onSearchChange={setSearch} /> 
+  {/* Filtros de accesibilidad *//*}
+  <FiltersBar filters={filters} onChangeFilters={setFilters} />
+
+  <h1 className="panel__title">Lugares populares en la zona</h1>
+
+{/* Lista de lugares */ /*}
+<PlacesList>
+  {filteredPlaces.map((p) => (
+    <PlaceItem key={p.id ?? p.placeId ?? p.nombre} place={p} />
+  ))}
+</PlacesList>
+</aside > 
+*/
+
 
 // URL base de la API; usa la variable de entorno o localhost por defecto
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 
-// Normaliza un texto para compararlo sin distinguir mayúsculas ni tildes
+// Normaliza un texto para compararlo sin distinguir mayúsculas ni tildes, DEBERIA QUEDARSE EN MAPS.JSX
 function normalize(text = "") {
   return text
     .toLowerCase()
@@ -27,7 +48,7 @@ function normalize(text = "") {
 // Función que aplica búsqueda y filtros sobre el array de lugares 
 // Se define fuera del componente porque no necesita hooks de React   
 
-// Aplica el buscador por texto y los filtros de accesibilidad a la lista de lugares
+// Aplica el buscador por texto y los filtros de accesibilidad a la lista de lugares, DEBERIA QUEDARSE EN MAPS.JSX
 function applyFilters(places, filters, search = "") {
   // Normalizamos el texto que escribe el usuario (minúsculas, sin tildes)
   const q = normalize(search);   // búsqueda normalizada [file:224]
@@ -62,7 +83,7 @@ function applyFilters(places, filters, search = "") {
     });
 }
 
-// Componente de página que combina mapa + panel lateral de lugares
+// Componente de página que combina mapa (CODIGO QUE HAY QUE APLICAR EN MAPS.JSX) + panel lateral de lugares
 export default function MapsBack() {
   // Lista completa de lugares que llega de la API
   const [places, setPlaces] = useState([]);
@@ -109,7 +130,7 @@ export default function MapsBack() {
 
           {/* Buscador por nombre/categoría que se exportaría en un componente llamado SearchBar.jsx 
           que se debe guardar en src/components */}
-          
+
           <input
             type="text"
             placeholder="Buscar bar, restaurante, hotel, museo..."
@@ -122,7 +143,7 @@ export default function MapsBack() {
            componente llamado  FiltersBar.jsx que se debe guardar en src/components */}
 
           <div className="filters-row">
-            
+
 
             {/* Rampa */}
             <button
@@ -226,9 +247,10 @@ export default function MapsBack() {
           <h1 className="panel__title">Lugares populares en la zona</h1>
 
 
-          {/* Lista de tarjetas de lugares (ya filtrados) , con media de puntuación( solo nos 
-          aparecerá si la media de alguna etiqueta es mayor de 2.5). Se debe exportar el componente llamado PlaceItem.jsx
-           que se puede guardar en src/components */}
+          {/* Lista de tarjetas de lugares (ya filtrados),
+            mostrando la media de puntuación de cada etiqueta de accesibilidad
+           (en verde si >= 2.5 y en rojo si < 2.5).
+           Este bloque podría extraerse a un componente PlaceItem.jsx en src/components */}
           <div className="panel__list">
             {filteredPlaces.map((p) => (
               <div key={p.id ?? p.placeId ?? p.nombre} className="placeItem">
@@ -237,56 +259,101 @@ export default function MapsBack() {
                   {p.categoria ?? "—"} · {p.direccion ?? "Sin dirección"}
                 </div>
 
-                {/* Etiquetas de accesibilidad con media de puntuación(todas las que tengan media >= 2.5) */}
+                {/* Etiquetas de accesibilidad con media de puntuación (todas las que tengan reseñas) */}
                 <div className="placeItem__tags">
-                  {p.avgRampa >= 2.5 && (
-                    <span className="tag tag--ok">
+                  {/* Rampa */}
+                  {p.avgRampa != null && (
+                    <span className={p.avgRampa >= 2.5 ? "tag tag--ok" : "tag tag--bad"}>
                       Rampa {p.avgRampa.toFixed(1)}
                     </span>
                   )}
 
-                  {p.avgAseoAdaptado >= 2.5 && (
-                    <span className="tag tag--ok">
+                  {/* Aseo adaptado */}
+                  {p.avgAseoAdaptado != null && (
+                    <span
+                      className={
+                        p.avgAseoAdaptado >= 2.5 ? "tag tag--ok" : "tag tag--bad"
+                      }
+                    >
                       Aseo {p.avgAseoAdaptado.toFixed(1)}
                     </span>
                   )}
 
-                  {p.avgAparcamientoAccesible >= 2.5 && (
-                    <span className="tag tag--ok">
+                  {/* Parking accesible */}
+                  {p.avgAparcamientoAccesible != null && (
+                    <span
+                      className={
+                        p.avgAparcamientoAccesible >= 2.5
+                          ? "tag tag--ok"
+                          : "tag tag--bad"
+                      }
+                    >
                       Parking {p.avgAparcamientoAccesible.toFixed(1)}
                     </span>
                   )}
 
-                  {p.avgAscensorPlataforma >= 2.5 && (
-                    <span className="tag tag--ok">
+                  {/* Ascensor / plataforma */}
+                  {p.avgAscensorPlataforma != null && (
+                    <span
+                      className={
+                        p.avgAscensorPlataforma >= 2.5
+                          ? "tag tag--ok"
+                          : "tag tag--bad"
+                      }
+                    >
                       Ascensor {p.avgAscensorPlataforma.toFixed(1)}
                     </span>
                   )}
 
-                  {p.avgPerroGuia >= 2.5 && (
-                    <span className="tag tag--ok">
+                  {/* Perro guía */}
+                  {p.avgPerroGuia != null && (
+                    <span
+                      className={
+                        p.avgPerroGuia >= 2.5 ? "tag tag--ok" : "tag tag--bad"
+                      }
+                    >
                       Perro guía {p.avgPerroGuia.toFixed(1)}
                     </span>
                   )}
 
-                  {p.avgInfoAudio >= 2.5 && (
-                    <span className="tag tag--ok">
+                  {/* Info audio */}
+                  {p.avgInfoAudio != null && (
+                    <span
+                      className={
+                        p.avgInfoAudio >= 2.5 ? "tag tag--ok" : "tag tag--bad"
+                      }
+                    >
                       Audio {p.avgInfoAudio.toFixed(1)}
                     </span>
                   )}
 
-                  {p.avgSenaleticaBraille >= 2.5 && (
-                    <span className="tag tag--ok">
+                  {/* Señalética Braille */}
+                  {p.avgSenaleticaBraille != null && (
+                    <span
+                      className={
+                        p.avgSenaleticaBraille >= 2.5
+                          ? "tag tag--ok"
+                          : "tag tag--bad"
+                      }
+                    >
                       Braille {p.avgSenaleticaBraille.toFixed(1)}
                     </span>
                   )}
 
-                  {p.avgInfoSubtitulos >= 2.5 && (
-                    <span className="tag tag--ok">
+                  {/* Subtítulos */}
+                  {p.avgInfoSubtitulos != null && (
+                    <span
+                      className={
+                        p.avgInfoSubtitulos >= 2.5
+                          ? "tag tag--ok"
+                          : "tag tag--bad"
+                      }
+                    >
                       Subtítulos {p.avgInfoSubtitulos.toFixed(1)}
                     </span>
                   )}
                 </div>
+
               </div>
             ))}
           </div>

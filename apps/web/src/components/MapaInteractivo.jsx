@@ -130,37 +130,6 @@ export default function MapaInteractivo({ lugares = [] }) {
   // Lo inicializamos a null, es decir, al cargar la página todavía no tenemos coordenadas.
   const [posicion, setPosicion] = useState(null);
 
-  /* useEffect se ejecuta una vez al montar el componente (por el array [] vacío).
-  useEffect(() => {
-    // Si el navegador no soporta geolocalización, salimos y no hacemos nada.
-    if (!navigator.geolocation) return;
-
-    // Pedimos la ubicación actual del usuario.
-    navigator.geolocation.getCurrentPosition(
-      // Función que se ejecuta si la geolocalización funciona bien.
-      (pos) => {
-        // Extraemos latitud y longitud del objeto devuelto por la API.
-        const { latitude, longitude } = pos.coords;
-        // Guardamos la posición en el estado como [lat, lng].
-        // Esto hará que el componente se vuelva a renderizar con esas coordenadas.
-        setPosicion([latitude, longitude]); // solo tu ubicación real
-      },
-      // Función que se ejecuta si hay un error (permiso denegado, timeout, etc.).
-      (err) => {
-        // Mostramos el error en la consola para poder ver qué ha pasado.
-        console.error("Error geolocalización:", err);
-        
-        setPosicion([37.9892, -1.1306]); // Murcia
-      }
-    );
-    // [] indica que este efecto solo se ejecuta una vez, cuando el componente se monta.
-  }, []);
-    */
-  /* Mientras no tenemos posición, mostramos un mensaje
-  if (!posicion) {
-    return <p>Cargando mapa con tu ubicación…</p>;
-  }
-  */
   // Cuando ya hay posición, devolvemos el mapa
   return (
     <>
