@@ -33,14 +33,17 @@ router.get("/", async (req, res) => {
         AVG(CASE WHEN ra.id_etiqueta = 7 THEN ra.puntuacion END) AS avg_senaletica_braille,
         AVG(CASE WHEN ra.id_etiqueta = 8 THEN ra.puntuacion END) AS avg_info_subtitulos
       FROM lugar l
-      -- Une cada lugar con sus reseñas de accesibilidad (puede no haber reseñas)
+      -- Solo etiquetas permitidas para la categoría del lugar
+      LEFT JOIN categoria_etiqueta ce
+       ON ce.categoria = l.categoria
+      -- Reseñas
       LEFT JOIN resena_accesibilidad ra
         ON ra.id_lugar = l.id_lugar
-      -- Agrupa por lugar para que AVG calcule una media por sitio
+       AND ra.id_etiqueta = ce.id_etiqueta
       GROUP BY l.id_lugar
     `);
 
-    // 2) Umbral mínimo de nota para “activar” una etiqueta (0–5 → a partir de 2.5 cuenta)
+    // 2) Umbral mínimo de nota para poner un color u otro en una etiqueta (0–5 → a partir de 2.5 cuenta)
     const THRESHOLD = 2.5;
 
     // 3) Transformar cada fila de la BD en un objeto que usará el frontend

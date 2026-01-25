@@ -137,7 +137,7 @@ export default function MapaInteractivo({ lugares = [] }) {
       <MapContainer
         center={MURCIA_CENTER}                          // Centro actual del mapa
         zoom={13}                                  // Nivel de zoom (más alto = más cerca)
-        style={{ height: "100%", width: "100%" }} // Tamaño del mapa en la página
+        style={{ height: "400px", width: "100%" }}// Tamaño del mapa en la página
       >
         {/* TileLayer pinta el fondo del mapa usando los tiles de OpenStreetMap */}
         <TileLayer
