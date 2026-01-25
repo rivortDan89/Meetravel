@@ -6,7 +6,7 @@ import "../styles/maps.css";
 import MapaInteractivo from "../components/MapaInteractivo";
 
 /*Cuando más abajo explico los componentes de barra buscador, filtrado por accesibilidad 
- y las tarjetas individuales con media puntuación de las reseñas de accesibilidad en el caso de que se exportaran
+y las tarjetas individuales con media puntuación de las reseñas de accesibilidad en el caso de que se exportaran
   deberiamos de poner en Maps.jsx arriba del todo esto :
 import SearchBar from "../components/SearchBar";
 import FiltersBar from "../components/FiltersBar";
