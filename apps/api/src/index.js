@@ -23,16 +23,23 @@ app.use('/api/places', lugaresRoutes);
 app.use("/google-places", googlePlacesRouter);
 
 // Ruta de prueba BD (muy útil para depurar)
+// Ruta de prueba BD (solo si ENABLE_DB_TEST=true)
 if (process.env.ENABLE_DB_TEST === "true") {
   app.get("/db-test", async (req, res) => {
     try {
       const [rows] = await pool.query("SELECT 1 AS ok");
       res.json({ ok: true, rows });
     } catch (error) {
-      res.status(500).json({ ok: false, error: error.message });
+      console.error("DB-TEST ERROR:", error);
+      res.status(500).json({
+        ok: false,
+        error: error.message,
+        code: error.code,
+      });
     }
   });
 }
+
 
 app.get("/", (req, res) => {
   res.json({
@@ -41,6 +48,8 @@ app.get("/", (req, res) => {
     endpoints: ["/health", "/db-test", "/api/lugares", "/etiquetas", "/google-places"],
   });
 });
+
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`API running on port ${PORT}`));
