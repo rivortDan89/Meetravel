@@ -23,7 +23,7 @@ app.use('/api/places', lugaresRoutes);
 app.use("/google-places", googlePlacesRouter);
 
 // Ruta de prueba BD (muy útil para depurar)
-if (process.env.NODE_ENV !== "production") {
+if (process.env.ENABLE_DB_TEST === "true") {
   app.get("/db-test", async (req, res) => {
     try {
       const [rows] = await pool.query("SELECT 1 AS ok");
