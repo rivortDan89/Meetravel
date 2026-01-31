@@ -34,5 +34,13 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
+app.get("/", (req, res) => {
+  res.json({
+    ok: true,
+    name: "meetravel-api",
+    endpoints: ["/health", "/db-test", "/api/lugares", "/etiquetas", "/google-places"],
+  });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`API running on port ${PORT}`));
