@@ -22,6 +22,9 @@ router.get("/", async (req, res) => {
         l.categoria,               -- categoría (Restaurante, Hotel, etc.)
         l.direccion,               -- dirección
         l.google_place_id,         -- id de Google Places (para no duplicar)
+      
+        -- Cantidad de resenas de accesibilidad por lugar
+        COUNT(DISTINCT ra.id_resena_accesibilidad) AS total_resenas_accesibilidad,
 
         -- Medias de puntuación por etiqueta (1..8) a partir de resena_accesibilidad
         AVG(CASE WHEN ra.id_etiqueta = 1 THEN ra.puntuacion END) AS avg_rampa,
@@ -57,6 +60,7 @@ router.get("/", async (req, res) => {
       categoria: row.categoria,
       direccion: row.direccion,
       google_place_id: row.google_place_id,
+      totalResenasAccesibilidad: row.total_resenas_accesibilidad,
 
       // Notas medias por etiqueta (por si se quieren mostrar en la UI)
       avgRampa: row.avg_rampa,
@@ -79,7 +83,7 @@ router.get("/", async (req, res) => {
       senaleticaBraille: row.avg_senaletica_braille >= THRESHOLD,
       infoSubtitulos: row.avg_info_subtitulos >= THRESHOLD,
     }));
-
+    console.log(lugares[0]);
     // 4) Enviamos al cliente el array de lugares ya procesado
     res.json(lugares);
   } catch (err) {

@@ -150,7 +150,7 @@ export default function MapsBack() {
                   className="searchBtn"
                   aria-label="Buscar"
                 >
-                  <img src="/icons/search.svg" alt="" />
+                  <img src="/images/icon-search.svg" alt="" />
                 </button>
               </div>
             </div>
@@ -275,7 +275,11 @@ export default function MapsBack() {
                     </div>
 
                     <div className="placeMeta">
-                      {(p.categoria ?? "Sin categoría") + " · " + (p.direccion ?? "Sin dirección")}
+                      {(p.categoria ?? "Sin categoría") +
+                        " · " +
+                        (p.direccion ?? "Sin dirección") +
+                        " · " +
+                        `${p.totalResenasAccesibilidad ?? 0} reseñas de accesibilidad`}
                     </div>
 
                     {/* Etiquetas de accesibilidad con color según media */}
@@ -287,7 +291,7 @@ export default function MapsBack() {
                       )}
 
                       {p.avgAseoAdaptado != null && (
-                        <span className={`tag ${Number(p.avgAseoAdaptado)>= 2.5 ? "tagGreen" : "tagRed"}`}>
+                        <span className={`tag ${Number(p.avgAseoAdaptado) >= 2.5 ? "tagGreen" : "tagRed"}`}>
                           Aseo {Number(p.avgAseoAdaptado).toFixed(1)}
                         </span>
                       )}
