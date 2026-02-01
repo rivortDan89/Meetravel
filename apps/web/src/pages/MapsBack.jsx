@@ -215,7 +215,7 @@ export default function MapsBack() {
               {/* Perro guía */}
               <button
                 type="button"
-                className={filters.perroGuia ? "chip chipOn " : "chip"}
+                className={filters.perroGuia ? " chip chipOn " : "chip"}
                 onClick={() =>
                   setFilters((f) => ({ ...f, perroGuia: !f.perroGuia }))
                 }

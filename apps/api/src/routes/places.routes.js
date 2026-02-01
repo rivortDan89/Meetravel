@@ -11,6 +11,7 @@ router.get("/", async (req, res) => {
   try {
     // 1) Consulta SQL:
     //    - Devuelve información básica de cada lugar
+    //    - Calcula la cantidad de resenas de accesibilidad de cada lugar
     //    - Calcula la media de puntuación de cada etiqueta de accesibilidad
     const [rows] = await pool.query(`
       SELECT
@@ -46,7 +47,7 @@ router.get("/", async (req, res) => {
       GROUP BY l.id_lugar
     `);
 
-    // 2) Umbral mínimo de nota para poner un color u otro en una etiqueta (0–5 → a partir de 2.5 cuenta)
+    // 2) Umbral mínimo de nota para poner un color u otro en una etiqueta (0–5)
     const THRESHOLD = 2.5;
 
     // 3) Transformar cada fila de la BD en un objeto que usará el frontend
@@ -55,7 +56,7 @@ router.get("/", async (req, res) => {
       id: row.id,
       nombre: row.nombre,
       descripcion: row.descripcion,
-      latitud: parseFloat(row.latitud),   // nos aseguramos de que son números
+      latitud: parseFloat(row.latitud),  
       longitud: parseFloat(row.longitud),
       categoria: row.categoria,
       direccion: row.direccion,
@@ -83,7 +84,7 @@ router.get("/", async (req, res) => {
       senaleticaBraille: row.avg_senaletica_braille >= THRESHOLD,
       infoSubtitulos: row.avg_info_subtitulos >= THRESHOLD,
     }));
-    console.log(lugares[0]);
+    
     // 4) Enviamos al cliente el array de lugares ya procesado
     res.json(lugares);
   } catch (err) {
