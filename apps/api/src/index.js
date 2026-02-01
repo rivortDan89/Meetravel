@@ -7,7 +7,7 @@ import etiquetasRoutes from "./routes/etiquetas.routes.js";
 import lugaresRoutes from "./routes/places.routes.js";
 import googlePlacesRouter from "./routes/googleplaces.routes.js";
 
-import { pool } from "./db.js";
+import { pool } from "./config/db.js";
 
 dotenv.config({ path: new URL("../.env", import.meta.url) });
 
@@ -45,7 +45,7 @@ app.get("/", (req, res) => {
   res.json({
     ok: true,
     name: "meetravel-api",
-    endpoints: ["/health", "/db-test", "/api/lugares", "/etiquetas", "/google-places"],
+    endpoints: ["/health", "/db-test", "/api/places", "/etiquetas", "/google-places"],
   });
 });
 
