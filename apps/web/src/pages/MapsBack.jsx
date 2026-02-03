@@ -54,7 +54,7 @@ function normalize(text = "") {
 // Aplica el buscador por texto y los filtros de accesibilidad a la lista de lugares, DEBERIA QUEDARSE EN MAPS.JSX
 function applyFilters(places, filters, search = "") {
   // Normalizamos el texto que escribe el usuario (minúsculas, sin tildes)
-  const q = normalize(search);   // búsqueda normalizada [file:224]
+  const q = normalize(search);   // búsqueda normalizada 
 
   return places
     // 1) Filtro de búsqueda por nombre o categoría
@@ -154,6 +154,7 @@ export default function MapsBack() {
                 </button>
               </div>
             </div>
+           
             {/* Contenedor de los botones de filtros, para maquetarlos en fila que se puede exportar como un
            componente llamado  FiltersBar.jsx que se debe guardar en src/components */}
 
@@ -262,6 +263,7 @@ export default function MapsBack() {
 
             <div className="list">
               {filteredPlaces.map((p) => (
+                
                 <div key={p.id ?? p.placeId ?? p.nombre} className="placeCard">
                   {/* Columna de imagen (de momento vacía, solo fondo) */}
                   <div className="placeImg" />
