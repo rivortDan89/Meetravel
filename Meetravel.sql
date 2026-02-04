@@ -1,6 +1,9 @@
 -- ======================================
--- BASE DE DATOS
+-- ESQUEMA MAESTRO MEETRAVEL v1.0
+-- MySQL para Railway/DBeaver/XAMPP
+-- Ejecutar primero, luego inserts datos.
 -- ======================================
+
 CREATE DATABASE IF NOT EXISTS meetravel
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -153,18 +156,7 @@ CREATE TABLE usuario_etiqueta (
     ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ======================================
--- LUGAR_ETIQUETA (N:M)
--- ======================================
-CREATE TABLE lugar_etiqueta (
-  id_lugar INT NOT NULL,
-  id_etiqueta INT NOT NULL,
-  PRIMARY KEY (id_lugar, id_etiqueta),
-  FOREIGN KEY (id_lugar) REFERENCES lugar(id_lugar)
-    ON DELETE CASCADE,
-  FOREIGN KEY (id_etiqueta) REFERENCES etiqueta(id_etiqueta)
-    ON DELETE CASCADE
-) ENGINE=InnoDB;
+
 
 -- ======================================
 -- ACTIVIDAD_ETIQUETA (N:M)
@@ -214,3 +206,13 @@ CREATE TABLE resena_accesibilidad (
     ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+-- ======================================
+-- CATEGORIA_ETIQUETA (N:M)
+-- ======================================
+CREATE TABLE categoria_etiqueta (
+  categoria   VARCHAR(100) NOT NULL,
+  id_etiqueta INT NOT NULL,
+  PRIMARY KEY (categoria, id_etiqueta),
+  FOREIGN KEY (id_etiqueta) REFERENCES etiqueta(id_etiqueta)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
