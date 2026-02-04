@@ -1,211 +1,171 @@
-// Importamos React y el hook useState para manejar estado (valores que cambian)
-import { useState, useEffect } from "react";
-// Importamos el CSS de Leaflet para que se vean bien el mapa, controles e iconos
+import { useEffect, useMemo, useRef } from "react";
 import "leaflet/dist/leaflet.css";
-import L from 'leaflet';
+import L from "leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 
-// Importamos los componentes de React-Leaflet que usaremos en el mapa
-import {
-  MapContainer,  // Contenedor principal del mapa (equivale a L.map(...) en Leaflet “normal”)
-  TileLayer,     // Capa de tiles (las imágenes del mapa: calles, edificios, etc.)
-  Marker,        // Marcador/pin que se coloca en una posición concreta
-  Popup,         // Ventana de información asociada a un marcador o punto
-  useMapEvents,  // Hook para escuchar eventos del mapa (click, move, zoom, etc.)
-  useMap         // Hook para acceder a la instancia del mapa
-} from "react-leaflet";
-
-
-// Centro de Murcia (aprox. Plaza Circular / Gran Vía)
 const MURCIA_CENTER = [37.9892, -1.1306];
 
-// Iconos Phosphor organizados por secciones
 const categoryIcons = {
-  // Alojamiento
   Alojamiento: '<i class="ph ph-bed"></i>',
   Hotel: '<i class="ph ph-bed"></i>',
-
-  // Comida y Bebida
   Restaurante: '<i class="ph ph-fork-knife"></i>',
   Cafetería: '<i class="ph ph-coffee"></i>',
   Bar: '<i class="ph ph-beer-bottle"></i>',
   Panadería: '<i class="ph ph-storefront"></i>',
-  'Comida para llevar': '<i class="ph ph-shopping-bag"></i>',
-  'Entrega de comida': '<i class="ph ph-fork-knife"></i>',
-
-  // Compras
+  "Comida para llevar": '<i class="ph ph-shopping-bag"></i>',
+  "Entrega de comida": '<i class="ph ph-fork-knife"></i>',
   Tienda: '<i class="ph ph-shopping-cart"></i>',
-  'Centro comercial': '<i class="ph ph-storefront"></i>',
+  "Centro comercial": '<i class="ph ph-storefront"></i>',
   Supermercado: '<i class="ph ph-shopping-bag"></i>',
-  'Tienda de licores': '<i class="ph ph-wine"></i>',
-
-  // Transporte
+  "Tienda de licores": '<i class="ph ph-wine"></i>',
   Aeropuerto: '<i class="ph ph-airplane"></i>',
-  'Estación de tren': '<i class="ph ph-train"></i>',
-  'Estación de autobús': '<i class="ph ph-bus"></i>',
+  "Estación de tren": '<i class="ph ph-train"></i>',
+  "Estación de autobús": '<i class="ph ph-bus"></i>',
   Aparcamiento: '<i class="ph ph-car"></i>',
   Gasolinera: '<i class="ph ph-gas-pump"></i>',
-  // Salud
   Hospital: '<i class="ph ph-first-aid-kit"></i>',
   Farmacia: '<i class="ph ph-first-aid"></i>',
   Salud: '<i class="ph ph-first-aid"></i>',
-
-  // Cultura y Ocio
   Museo: '<i class="ph ph-bank"></i>',
   Parque: '<i class="ph ph-tree"></i>',
-  'Atracción turística': '<i class="ph ph-map-pin"></i>',
+  "Atracción turística": '<i class="ph ph-map-pin"></i>',
   Gimnasio: '<i class="ph ph-barbell"></i>',
   Spa: '<i class="ph ph-drop"></i>',
-
-
-
-  // Por defecto
-  'default': '<i class="ph ph-map-pin-line"></i>'
+  default: '<i class="ph ph-map-pin-line"></i>',
 };
 
-// Función para crear icono personalizado
-const createCustomIcon = (category) => {
-  const iconHTML = categoryIcons[category] || categoryIcons['default'];
+function createCustomIcon(category) {
+  const iconHTML = categoryIcons[category] || categoryIcons.default;
 
   return L.divIcon({
-    html: `<div style="background-color: #3b82f6; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-size: 20px;">
+    html: `<div style="background-color:#3b82f6;color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:20px;">
       ${iconHTML}
     </div>`,
-    className: 'custom-marker-icon',
+    className: "custom-marker-icon",
     iconSize: [40, 40],
     iconAnchor: [20, 40],
-    popupAnchor: [0, -40]
+    popupAnchor: [0, -40],
   });
-};
+}
 
-//
-function PopupBadge({ children, color = '#27ae60' }) {
+function PopupBadge({ children, color = "#27ae60" }) {
   return (
-    <span style={{
-      backgroundColor: color,  // color dinámico
-      color: 'white',
-      padding: '3px 8px',
-      borderRadius: '12px',
-      fontSize: '11px',
-      whiteSpace: 'nowrap',
-      display: 'inline-block'
-    }}>
+    <span
+      style={{
+        backgroundColor: color,
+        color: "white",
+        padding: "3px 8px",
+        borderRadius: "12px",
+        fontSize: "11px",
+        whiteSpace: "nowrap",
+        display: "inline-block",
+      }}
+    >
       {children}
     </span>
   );
 }
-// Componente auxiliar que "escucha" clics en el mapa
-function ClickHandler({ onClick }) {
-  // useMapEvents se conecta con el mapa y nos deja reaccionar a eventos
-  useMapEvents({
-    // Evento de clic en cualquier punto del mapa
-    click(e) {
-      // e.latlng contiene las coordenadas donde se hizo clic ({ lat, lng })
-      // Llamamos a la función recibida por props para actualizar el estado en el padre
-      onClick(e.latlng);
-    },
-  });
 
-  // Este componente no pinta nada en pantalla, solo maneja eventos
-  return null;
-}
-
-
-// componente para recentrar el mapa cuando cambie `posicion`
-function RecentrarMapa({ posicion }) {
+function SyncSelection({ selectedId, placesById, markerRefs }) {
   const map = useMap();
 
   useEffect(() => {
-    if (!posicion) return;
-    map.setView(posicion, map.getZoom()); // o map.flyTo(posicion, 13)
-  }, [posicion, map]);
+    if (!selectedId) return;
+
+    const place = placesById.get(String(selectedId));
+    if (!place) return;
+
+    const lat = Number(place.latitud);
+    const lng = Number(place.longitud);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    map.flyTo([lat, lng], Math.max(map.getZoom(), 15), { duration: 0.6 });
+
+    const mk = markerRefs.current[String(selectedId)];
+    if (mk && mk.openPopup) mk.openPopup();
+  }, [selectedId, placesById, markerRefs, map]);
 
   return null;
 }
 
+export default function MapaInteractivo({
+  lugares = [],
+  selectedId = null,
+  onSelectId = () => {},
+}) {
+  const safePlaces = useMemo(() => {
+    return (lugares ?? []).filter((p) => {
+      const lat = Number(p.latitud);
+      const lng = Number(p.longitud);
+      return Number.isFinite(lat) && Number.isFinite(lng);
+    });
+  }, [lugares]);
 
-// Componente principal del mapa
-// Recibe `lugares` (los lugares filtrados que vienen del backend)
-export default function MapaInteractivo({ lugares = [] }) {
-  // Creamos un estado llamado "posicion" y su función para actualizarlo "setPosicion".
-  // Lo inicializamos a null, es decir, al cargar la página todavía no tenemos coordenadas.
-  const [posicion, setPosicion] = useState(null);
+  const markerRefs = useRef({});
 
-  // Cuando ya hay posición, devolvemos el mapa
+  const placesById = useMemo(() => {
+    const m = new Map();
+    for (const p of safePlaces) {
+      m.set(String(getPlaceKey(p)), p);
+    }
+    return m;
+  }, [safePlaces]);
+
   return (
-    <>
-      {/* MapContainer crea el mapa de Leaflet dentro de este div */}
-      <MapContainer
-        center={MURCIA_CENTER}                          // Centro actual del mapa
-        zoom={13}                                  // Nivel de zoom (más alto = más cerca)
-        style={{ height: "400px", width: "100%" }}// Tamaño del mapa en la página
-      >
-        {/* TileLayer pinta el fondo del mapa usando los tiles de OpenStreetMap */}
-        <TileLayer
-          url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
-          attribution="&copy; OpenMapTiles &copy; OpenStreetMap contributors"
-        />
+    <MapContainer center={MURCIA_CENTER} zoom={13} style={{ height: "100%", width: "100%" }}>
+      <TileLayer
+        url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
+        attribution="&copy; OpenMapTiles &copy; OpenStreetMap contributors"
+      />
 
-        {/* Marker coloca un pin en la posición guardada en el estado */}
-        {/* <Marker position={posicion}>
-          Popup es la ventanita que aparece al hacer clic en el marcador 
-          <Popup>Ubicación seleccionada</Popup>
-        </Marker>*/}
+      {safePlaces.map((lugar) => {
+        const id = String(getPlaceKey(lugar));
+        const lat = Number(lugar.latitud);
+        const lng = Number(lugar.longitud);
 
-
-        {lugares.map((lugar) => (
+        return (
           <Marker
-            key={lugar.id}
-            position={[lugar.latitud, lugar.longitud]}
+            key={id}
+            position={[lat, lng]}
             icon={createCustomIcon(lugar.categoria)}
+            ref={(ref) => {
+              if (ref) markerRefs.current[id] = ref;
+            }}
+            eventHandlers={{
+              click: () => onSelectId(id),
+            }}
           >
             <Popup maxWidth={320}>
-              <div style={{ padding: '10px' }}>
-                <h3 style={{
-                  margin: '0 0 10px 0',
-                  color: '#2c3e50',
-                  fontSize: '16px'
-                }}>
+              <div style={{ padding: "10px" }}>
+                <h3 style={{ margin: "0 0 10px 0", color: "#2c3e50", fontSize: "16px" }}>
                   {lugar.nombre}
                 </h3>
 
-                <div style={{ marginBottom: '8px' }}>
-                  <span style={{
-                    backgroundColor: '#3498db',
-                    color: 'white',
-                    padding: '3px 8px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}>
+                <div style={{ marginBottom: "8px" }}>
+                  <span
+                    style={{
+                      backgroundColor: "#3498db",
+                      color: "white",
+                      padding: "3px 8px",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                    }}
+                  >
                     {lugar.categoria}
                   </span>
                 </div>
 
                 {lugar.direccion && (
-                  <p style={{
-                    margin: '5px 0',
-                    fontSize: '14px',
-                    color: '#555'
-                  }}>
+                  <p style={{ margin: "5px 0", fontSize: "14px", color: "#555" }}>
                     📍 {lugar.direccion}
                   </p>
                 )}
 
-                {/* Características de accesibilidad */}
-                <div style={{
-                  marginTop: '10px',
-                  paddingTop: '10px',
-                  borderTop: '1px solid #eee'
-                }}>
-                  <strong style={{ fontSize: '13px', color: '#2c3e50' }}>
-                    Accesibilidad:
-                  </strong>
-                  <div style={{
-                    marginTop: '6px',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '5px'
-                  }}>
+                <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #eee" }}>
+                  <strong style={{ fontSize: "13px", color: "#2c3e50" }}>Accesibilidad:</strong>
+
+                  <div style={{ marginTop: "6px", display: "flex", flexWrap: "wrap", gap: "5px" }}>
                     {lugar.rampa && <PopupBadge color="#10b981">♿ Rampa</PopupBadge>}
                     {lugar.aseoAdaptado && <PopupBadge color="#3b82f6">🚻 Aseo</PopupBadge>}
                     {lugar.aparcamientoAccesible && <PopupBadge color="#8b5cf6">🅿️ Parking</PopupBadge>}
@@ -215,10 +175,15 @@ export default function MapaInteractivo({ lugares = [] }) {
                     {lugar.senaleticaBraille && <PopupBadge color="#6366f1">👆 Braille</PopupBadge>}
                     {lugar.infoSubtitulos && <PopupBadge color="#ef4444">📝 Subtítulos</PopupBadge>}
 
-                    {!lugar.rampa && !lugar.aseoAdaptado && !lugar.aparcamientoAccesible &&
-                      !lugar.ascensorPlataforma && !lugar.perroGuia && !lugar.infoAudio &&
-                      !lugar.senaleticaBraille && !lugar.infoSubtitulos && (
-                        <span style={{ fontSize: '12px', color: '#999' }}>
+                    {!lugar.rampa &&
+                      !lugar.aseoAdaptado &&
+                      !lugar.aparcamientoAccesible &&
+                      !lugar.ascensorPlataforma &&
+                      !lugar.perroGuia &&
+                      !lugar.infoAudio &&
+                      !lugar.senaleticaBraille &&
+                      !lugar.infoSubtitulos && (
+                        <span style={{ fontSize: "12px", color: "#999" }}>
                           Sin información de accesibilidad
                         </span>
                       )}
@@ -227,11 +192,14 @@ export default function MapaInteractivo({ lugares = [] }) {
               </div>
             </Popup>
           </Marker>
-        ))}
+        );
+      })}
 
-        <ClickHandler onClick={setPosicion} />
-        <RecentrarMapa posicion={posicion} />
-      </MapContainer>
-    </>
+      <SyncSelection selectedId={selectedId} placesById={placesById} markerRefs={markerRefs} />
+    </MapContainer>
   );
+}
+
+function getPlaceKey(l) {
+  return l.id ?? l.google_place_id ?? l.placeId ?? `${l.nombre}-${l.latitud}-${l.longitud}`;
 }

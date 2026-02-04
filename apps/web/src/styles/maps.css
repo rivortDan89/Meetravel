@@ -8,9 +8,13 @@
 
 /* Layout 70/30 */
 .mapsLayout {
-  height: 100%;
+  height: calc(100vh - 140px);
   display: flex;
   gap: 16px;
+
+ /* clave: el layout tiene alto real */
+  min-height: calc(100vh - 200px); /* ajusta 200px según tu header+footer */
+
 }
 
 /* IZQUIERDA */
@@ -20,6 +24,7 @@
 }
 
 .mapBox {
+  min-height: 420px;
   height: 100%;
   background: #fff;
   border: 1px solid rgba(22, 57, 50, 0.25);
