@@ -35,7 +35,7 @@ Y EN EL RESTO DEL CÓDIGO TENDRÍAS QUE PONER EN EL APARTADO DE MAPS DONDE QUIER
  
 */
 
-
+const FALLBACK_IMAGE = "/images/placeholder-lugar.jpg";
 // URL base de la API; usa la variable de entorno o localhost por defecto
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -154,7 +154,7 @@ export default function MapsBack() {
                 </button>
               </div>
             </div>
-           
+
             {/* Contenedor de los botones de filtros, para maquetarlos en fila que se puede exportar como un
            componente llamado  FiltersBar.jsx que se debe guardar en src/components */}
 
@@ -263,10 +263,16 @@ export default function MapsBack() {
 
             <div className="list">
               {filteredPlaces.map((p) => (
-                
+
                 <div key={p.id ?? p.placeId ?? p.nombre} className="placeCard">
                   {/* Columna de imagen (de momento vacía, solo fondo) */}
-                  <div className="placeImg" />
+                  <div className="placeImg">
+                    <img
+                      src={p.fotoUrl || FALLBACK_IMAGE}
+                      alt={p.nombre ?? "Foto del lugar"}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </div>
 
                   {/* Cuerpo de la tarjeta */}
                   <div className="placeBody">

@@ -1,6 +1,6 @@
 
 import dotenv from "dotenv";
-import { pool } from "../config/db.js";
+import { pool } from "./config/db.js";
 import fetch from "node-fetch";
 
 dotenv.config({ path: new URL("../../.env", import.meta.url) });
