@@ -62,7 +62,7 @@ router.get("/", async (req, res) => {
       direccion: row.direccion,
       google_place_id: row.google_place_id,
       totalResenasAccesibilidad: row.total_resenas_accesibilidad,
-
+      fotoUrl: row.foto_url,
       // Notas medias por etiqueta (por si se quieren mostrar en la UI)
       avgRampa: row.avg_rampa,
       avgAseoAdaptado: row.avg_aseo_adaptado,
