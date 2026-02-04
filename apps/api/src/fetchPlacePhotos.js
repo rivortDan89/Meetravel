@@ -1,19 +1,19 @@
-
 import dotenv from "dotenv";
 import { pool } from "./config/db.js";
 import fetch from "node-fetch";
 
 dotenv.config({ path: new URL("../../.env", import.meta.url) });
 
-const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 
-function getPhotoUrl(photoReference) {
-  if (!photoReference || !API_KEY) return null;
-  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${API_KEY}`;
+function buildPhotoUrl(photoReference) {
+  if (!photoReference || !GOOGLE_API_KEY) return null;
+  const maxWidth = 400;
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${GOOGLE_API_KEY}`;
 }
 
 async function main() {
-  if (!API_KEY) {
+  if (!GOOGLE_API_KEY) {
     console.error("Falta GOOGLE_PLACES_API_KEY en el .env");
     process.exit(1);
   }
@@ -26,10 +26,13 @@ async function main() {
 
   for (const lugar of lugares) {
     const { id_lugar, google_place_id } = lugar;
+
     try {
-      // 1) Pedir detalles del lugar (incluyendo photos)
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${google_place_id}&fields=photos&key=${API_KEY}`;
-      const resp = await fetch(url);
+      const detailsUrl =
+        `https://maps.googleapis.com/maps/api/place/details/json` +
+        `?place_id=${google_place_id}&fields=photos&key=${GOOGLE_API_KEY}`;
+
+      const resp = await fetch(detailsUrl);
       const data = await resp.json();
 
       if (data.status !== "OK" || !data.result?.photos?.length) {
@@ -40,14 +43,13 @@ async function main() {
       }
 
       const photoRef = data.result.photos[0].photo_reference;
-      const fotoUrl = getPhotoUrl(photoRef);
+      const fotoUrl = buildPhotoUrl(photoRef);
 
       if (!fotoUrl) {
         console.log(`No se pudo construir fotoUrl para id_lugar=${id_lugar}`);
         continue;
       }
 
-      // 2) Guardar la URL en la BD
       await pool.query(
         "UPDATE lugar SET foto_url = ? WHERE id_lugar = ?",
         [fotoUrl, id_lugar]
@@ -67,3 +69,4 @@ main().catch((e) => {
   console.error("Error general:", e);
   process.exit(1);
 });
+

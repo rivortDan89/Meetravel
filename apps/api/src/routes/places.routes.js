@@ -23,6 +23,7 @@ router.get("/", async (req, res) => {
         l.categoria,               -- categoría (Restaurante, Hotel, etc.)
         l.direccion,               -- dirección
         l.google_place_id,         -- id de Google Places (para no duplicar)
+        l.foto_url,                -- url de la foto
       
         -- Cantidad de resenas de accesibilidad por lugar
         COUNT(DISTINCT ra.id_resena_accesibilidad) AS total_resenas_accesibilidad,
