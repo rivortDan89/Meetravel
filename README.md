@@ -2,8 +2,7 @@
   <h1>MeeTravel</h1>
 </div>
 
-MeeTravel es una aplicación web desarrollada como Proyecto Final (2º DAW).  
-El objetivo del prototipo es ofrecer un mapa interactivo con información de accesibilidad de lugares, aportada y consultada por la comunidad.
+MeeTravel es una aplicación web desarrollada como Proyecto Final (2º DAW). El objetivo del prototipo es ofrecer un mapa interactivo con información de accesibilidad de lugares, aportada y consultada por la comunidad.
 
 Este repositorio incluye frontend (React + Vite) y una API backend (Node/Express) conectada a MySQL.
 
@@ -36,7 +35,6 @@ MeeTravel permite:
 - react-router-dom
 - Leaflet + react-leaflet
 - @fortawesome/fontawesome-free
-- phosphor-react
 - CSS (sin framework)
 
 ### Backend (`apps/api`)
