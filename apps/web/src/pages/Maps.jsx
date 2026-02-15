@@ -16,23 +16,21 @@ function normalize(text = "") {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-// Clave estable para selección (misma lógica que ya usas)
+// Clave estable para selección
 function getPlaceKey(l) {
   return l.id ?? l.google_place_id ?? l.placeId ?? `${l.nombre}-${l.latitud}-${l.longitud}`;
 }
 
-// Aplica buscador + filtros de accesibilidad (estilo MapsBack)
+// Aplica buscador + filtros de accesibilidad
 function applyFilters(places, filters, search = "") {
   const q = normalize(search);
 
   return (places ?? [])
-    // 1) Buscador por nombre/categoría/dirección
     .filter((p) => {
       if (!q) return true;
       const haystack = normalize([p.nombre, p.categoria, p.direccion].filter(Boolean).join(" · "));
       return haystack.includes(q);
     })
-    // 2) Filtros de accesibilidad
     .filter((p) => {
       if (filters.rampa && !p.rampa) return false;
       if (filters.aseoAdaptado && !p.aseoAdaptado) return false;
@@ -52,7 +50,7 @@ export default function Maps({ view = "lista" }) {
   const [filters, setFilters] = useState({});
   const [search, setSearch] = useState("");
 
-  // selección sincronizada tarjeta <-> marcador
+  // selección (tarjeta <-> marcador)
   const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
@@ -63,15 +61,14 @@ export default function Maps({ view = "lista" }) {
         setStatus("Cargando...");
         const data = await getPlaces();
         const rows = Array.isArray(data) ? data : (data.rows ?? data.lugares ?? []);
-
         if (!alive) return;
         setPlaces(rows);
         setStatus("OK");
       } catch (e) {
         console.error("Error getPlaces:", e);
         if (!alive) return;
-        setPlaces([]);
         setStatus("Error cargando lugares");
+        setPlaces([]);
       }
     })();
 
@@ -85,14 +82,13 @@ export default function Maps({ view = "lista" }) {
     [places, filters, search]
   );
 
-  // 👇 Importante: NO hacemos setState dentro de un effect para “limpiar”
-  // Así evitas el warning “setState inside effect”.
+  // Si el seleccionado no está en la lista filtrada → selectedPlace será null
   const selectedPlace = useMemo(() => {
     if (!selectedId) return null;
     return filteredPlaces.find((p) => String(getPlaceKey(p)) === String(selectedId)) ?? null;
   }, [filteredPlaces, selectedId]);
 
-  // Si quieres seguir respetando view (opcional)
+  // “view” opcional (si ya no lo usas, puedes quitarlo)
   const forceEmpty = view === "vacio";
   const forceDetail = view === "detalle";
 
@@ -114,11 +110,12 @@ export default function Maps({ view = "lista" }) {
           </div>
         </section>
 
-        {/* DERECHA: Panel con lógica Detalle/Vacío/Lista */}
+        {/* DERECHA: Panel con lógica Detalle / Vacío / Lista */}
         <section className="mapsRight">
           <div className="panel">
             {(forceDetail || selectedPlace) ? (
               <PanelDetalle
+                key={selectedId ?? "no-selection"}   // 👈 reinicia estado interno al cambiar de sitio
                 place={selectedPlace}
                 onBack={() => setSelectedId(null)}
               />
@@ -126,6 +123,8 @@ export default function Maps({ view = "lista" }) {
               <PanelVacio
                 search={search}
                 onClearSearch={() => setSearch("")}
+                filters={filters}
+                onChangeFilters={setFilters}
               />
             ) : (
               <PanelLista

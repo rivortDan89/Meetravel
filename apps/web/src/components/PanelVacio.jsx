@@ -1,64 +1,49 @@
-export default function PanelVacio() {
+export default function PanelVacio({
+  search = "",
+  onClearSearch = () => {},
+  filters = {},
+  onChangeFilters = () => {},
+}) {
+  const toggle = (key) => onChangeFilters((f) => ({ ...f, [key]: !f?.[key] }));
+
   return (
     <div>
-      <div className="searchRow">
-        <div className="searchBar">
-          <input
-            className="searchInput"
-            defaultValue="Cafetería"
-            placeholder="Buscar bar, restaurante, hotel, museo..."
-            type="text"
-          />
-          <button className="searchBtn" type="button" aria-label="Buscar">
-            <img src="/images/icon-search.svg" alt="" />
-          </button>
-        </div>
-      </div>
-
-      <div className="chips">
-        <button className="chip chipOn" type="button">Acceso</button>
-        <button className="chip chipOn" type="button">Entrada</button>
-        <button className="chip chipOn" type="button">Baño</button>
-        <button className="chip" type="button">Rampa</button>
-      </div>
-
       <p className="emptyText">
-        <strong>No hemos encontrado lugares acorde a tu búsqueda</strong>, te recomendamos estos
-        lugares cercanos según tus preferencias.
+        No hay resultados para <strong>{search || "tu búsqueda/filtros"}</strong>.
       </p>
 
-      <div className="list">
-        <article className="placeCard">
-          <div className="placeImg" />
-          <div className="placeBody">
-            <div className="placeTop">
-              <div className="placeName">Latte Art</div>
-              <div className="placeRate">4,7 ★</div>
-            </div>
-            <div className="placeMeta">Cafetería · 70 reseñas generales · 15 reseñas accesibilidad</div>
-            <div className="tags">
-              <span className="tag tagRed">Baño 3.8</span>
-              <span className="tag tagGreen">Entrada 4.1</span>
-              <span className="tag tagGreen">Acceso 4.5</span>
-            </div>
-          </div>
-        </article>
+      <div style={{ marginBottom: 10 }}>
+        <button className="backLink" type="button" onClick={onClearSearch}>
+          Limpiar búsqueda
+        </button>
+      </div>
 
-        <article className="placeCard">
-          <div className="placeImg" />
-          <div className="placeBody">
-            <div className="placeTop">
-              <div className="placeName">Café de Ficciones</div>
-              <div className="placeRate">4,7 ★</div>
-            </div>
-            <div className="placeMeta">Cafetería · 70 reseñas generales · 15 reseñas accesibilidad</div>
-            <div className="tags">
-              <span className="tag tagRed">Baño 3.8</span>
-              <span className="tag tagGreen">Entrada 4.1</span>
-              <span className="tag tagGreen">Acceso 4.5</span>
-            </div>
-          </div>
-        </article>
+      {/* Chips también aquí */}
+      <div className="chips">
+        <button type="button" className={filters.rampa ? "chip chipOn" : "chip"} onClick={() => toggle("rampa")}>
+          Rampa
+        </button>
+        <button type="button" className={filters.aseoAdaptado ? "chip chipOn" : "chip"} onClick={() => toggle("aseoAdaptado")}>
+          Aseo
+        </button>
+        <button type="button" className={filters.aparcamientoAccesible ? "chip chipOn" : "chip"} onClick={() => toggle("aparcamientoAccesible")}>
+          Parking
+        </button>
+        <button type="button" className={filters.ascensorPlataforma ? "chip chipOn" : "chip"} onClick={() => toggle("ascensorPlataforma")}>
+          Ascensor
+        </button>
+        <button type="button" className={filters.perroGuia ? "chip chipOn" : "chip"} onClick={() => toggle("perroGuia")}>
+          Perro guía
+        </button>
+        <button type="button" className={filters.infoAudio ? "chip chipOn" : "chip"} onClick={() => toggle("infoAudio")}>
+          Audio
+        </button>
+        <button type="button" className={filters.senaleticaBraille ? "chip chipOn" : "chip"} onClick={() => toggle("senaleticaBraille")}>
+          Braille
+        </button>
+        <button type="button" className={filters.infoSubtitulos ? "chip chipOn" : "chip"} onClick={() => toggle("infoSubtitulos")}>
+          Subtítulos
+        </button>
       </div>
     </div>
   );

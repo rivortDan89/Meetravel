@@ -5,17 +5,13 @@ export default function PanelLista({
   selectedId = null,
   onSelectPlace = () => {},
 
-  // buscador
   search = "",
   onSearchChange = () => {},
 
-  // filtros accesibilidad
   filters = {},
   onChangeFilters = () => {},
 }) {
-  const toggle = (key) => {
-    onChangeFilters((f) => ({ ...f, [key]: !f?.[key] }));
-  };
+  const toggle = (key) => onChangeFilters((f) => ({ ...f, [key]: !f?.[key] }));
 
   return (
     <div>
@@ -35,7 +31,7 @@ export default function PanelLista({
         </div>
       </div>
 
-      {/* Chips filtros accesibilidad */}
+      {/* Chips filtros accesibilidad (si queréis aquí también la categoría, se añade igual) */}
       <div className="chips">
         <button type="button" className={filters.rampa ? "chip chipOn" : "chip"} onClick={() => toggle("rampa")}>
           Rampa
@@ -71,7 +67,7 @@ export default function PanelLista({
           const isOn = selectedId != null && String(selectedId) === id;
 
           return (
-            <div
+            <article
               key={id}
               className="placeCard"
               onClick={() => onSelectPlace(p)}
@@ -79,9 +75,7 @@ export default function PanelLista({
                 cursor: "pointer",
                 outline: isOn ? "2px solid rgba(182, 54, 28, 0.6)" : "none",
               }}
-              title="Abrir detalle y centrar en el mapa"
             >
-              {/* FOTO */}
               <div className="placeImg">
                 <img
                   src={p.fotoUrl || FALLBACK_IMAGE}
@@ -96,13 +90,17 @@ export default function PanelLista({
                   <div className="placeRate">{p.totalResenasAccesibilidad ?? 0} acc ★</div>
                 </div>
 
+                {/* Meta 1: categoría + dirección */}
                 <div className="placeMeta">
-                  {(p.categoria ?? "Sin categoría") +
-                    " · " +
-                    (p.direccion ?? "Sin dirección")}
+                  {(p.categoria ?? "Sin categoría")} · {(p.direccion ?? "Sin dirección")}
                 </div>
 
-                {/* Tags medias (si existen) */}
+                {/* Meta 2: reseñas debajo del título, como pidió tu compi */}
+                <div className="placeMeta">
+                  {(p.totalResenasAccesibilidad ?? 0)} reseñas de accesibilidad
+                </div>
+
+                {/* Tags con medias (si vienen) */}
                 <div className="tags">
                   {p.avgRampa != null && (
                     <span className={`tag ${Number(p.avgRampa) >= 2.5 ? "tagGreen" : "tagRed"}`}>
@@ -146,7 +144,7 @@ export default function PanelLista({
                   )}
                 </div>
               </div>
-            </div>
+            </article>
           );
         })}
       </div>
