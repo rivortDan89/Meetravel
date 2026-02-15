@@ -63,7 +63,8 @@ CREATE TABLE lugar (
   longitud DECIMAL(9,6),
   google_place_id VARCHAR(255),
   direccion TEXT,
-  descripcion TEXT
+  descripcion TEXT,
+  foto_url VARCHAR(800)
 ) ENGINE=InnoDB;
 
 -- ======================================
