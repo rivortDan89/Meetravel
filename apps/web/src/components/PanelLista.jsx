@@ -59,7 +59,7 @@ export default function PanelLista({
         </button>
       </div>
 
-      <h2 className="panelTitle">Lugares (desde la API) ({places.length})</h2>
+      <h2 className="panelTitle">Lugares ({places.length})</h2>
 
       <div className="list">
         {places.map((p) => {
