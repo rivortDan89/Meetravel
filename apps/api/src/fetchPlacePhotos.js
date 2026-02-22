@@ -6,6 +6,8 @@ dotenv.config({ path: new URL("../../.env", import.meta.url) });
 
 const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 
+// Script auxiliar: completa foto_url en BD usando Place Details (photos)
+// No se ejecuta como parte del servidor; lo usamos puntualmente para poblar datos.
 function buildPhotoUrl(photoReference) {
   if (!photoReference || !GOOGLE_API_KEY) return null;
   const maxWidth = 400;
@@ -18,6 +20,7 @@ async function main() {
     process.exit(1);
   }
 
+  // Solo buscamos lugares con google_place_id y sin foto aún
   const [lugares] = await pool.query(
     "SELECT id_lugar, google_place_id FROM lugar WHERE google_place_id IS NOT NULL AND foto_url IS NULL"
   );
@@ -36,9 +39,7 @@ async function main() {
       const data = await resp.json();
 
       if (data.status !== "OK" || !data.result?.photos?.length) {
-        console.log(
-          `Sin fotos para id_lugar=${id_lugar}, status=${data.status}`
-        );
+        console.log(`Sin fotos para id_lugar=${id_lugar}, status=${data.status}`);
         continue;
       }
 
@@ -69,4 +70,3 @@ main().catch((e) => {
   console.error("Error general:", e);
   process.exit(1);
 });
-

@@ -1,10 +1,10 @@
-// src/routes/reviews.routes.js
 import { Router } from "express";
 import { pool } from "../config/db.js";
 
 const router = Router();
 
-// GET /api/reviews/accesibilidad/:idLugar
+// GET /reviews/accesibilidad/:idLugar
+// Devuelve las reseñas de accesibilidad de un lugar, ordenadas por fecha (más recientes primero).
 router.get("/accesibilidad/:idLugar", async (req, res) => {
   try {
     const { idLugar } = req.params;

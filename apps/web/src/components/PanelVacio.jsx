@@ -1,3 +1,4 @@
+// Este Panel se muestra cuando no hay resultados que mostrar, ya sea por el buscador o por los filtros. También incluye botones para limpiar la búsqueda y cambiar los filtros directamente desde aquí, para facilitar la navegación y evitar que el usuario se quede "atascado" sin opciones.
 export default function PanelVacio({
   search = "",
   onClearSearch = () => {},

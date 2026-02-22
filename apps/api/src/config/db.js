@@ -1,11 +1,13 @@
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 
-// En local, carga .env si existe. En Railway, process.env ya viene inyectado.
+// En local cargamos .env; en despliegues tipo Railway/Render las variables ya vienen inyectadas.
 dotenv.config();
 
+// SSL opcional para entornos cloud (algunas BD gestionadas lo requieren).
 const useSSL = String(process.env.DB_SSL).toLowerCase() === "true";
 
+// Pool de conexiones: evita abrir/cerrar conexión por cada request y mejora rendimiento en llamadas concurrentes.
 export const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT || 3306),

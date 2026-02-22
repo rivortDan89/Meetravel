@@ -15,7 +15,7 @@ export default function PanelLista({
 
   return (
     <div>
-      {/* Buscador */}
+      {/* Buscador principal. Actualiza el estado en tiempo real al escribir.*/}
       <div className="searchRow">
         <div className="searchBar">
           <input
@@ -31,7 +31,7 @@ export default function PanelLista({
         </div>
       </div>
 
-      {/* Chips filtros accesibilidad (si queréis aquí también la categoría, se añade igual) */}
+      {/* Chips filtros accesibilidad (Repetimos la lógica aquí y en PanelVacio para que el usuario pueda ajustar filtros en ambos estados.) */}
       <div className="chips">
         <button type="button" className={filters.rampa ? "chip chipOn" : "chip"} onClick={() => toggle("rampa")}>
           Rampa
@@ -90,17 +90,17 @@ export default function PanelLista({
                   <div className="placeRate">{p.totalResenasAccesibilidad ?? 0} acc ★</div>
                 </div>
 
-                {/* Meta 1: categoría + dirección */}
+                {/* Información básica del lugar: categoría y dirección */}
                 <div className="placeMeta">
                   {(p.categoria ?? "Sin categoría")} · {(p.direccion ?? "Sin dirección")}
                 </div>
 
-                {/* Meta 2: reseñas debajo del título, como pidió tu compi */}
+                {/* Mostramos el número total de resñas de accesibilidad y lo colocamos debajo del título para mejorar la jerarquía visual */}
                 <div className="placeMeta">
                   {(p.totalResenasAccesibilidad ?? 0)} reseñas de accesibilidad
                 </div>
 
-                {/* Tags con medias (si vienen) */}
+                {/* Indicadores visuales con medias de accesibilidad, se colorean según el valor para facilitar la interpretación rápida */}
                 <div className="tags">
                   {p.avgRampa != null && (
                     <span className={`tag ${Number(p.avgRampa) >= 2.5 ? "tagGreen" : "tagRed"}`}>

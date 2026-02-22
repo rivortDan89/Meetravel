@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const FALLBACK_IMAGE = "/images/placeholder-lugar.jpg";
 
 export default function PanelDetalle({ place, onBack }) {
-  // ✅ Hooks SIEMPRE arriba (nada de returns antes)
+  // Mantenemos los hooks al incicio del componente para respetar las reglas de React. El fetch de reseñas se dispara cada vez que cambia el placeId, y el estado se actualiza con las reseñas obtenidas.
   const [reviews, setReviews] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -41,7 +41,7 @@ export default function PanelDetalle({ place, onBack }) {
     );
   }, [reviews, searchTerm]);
 
-  // ✅ Ahora sí: si no hay place, no renderiza
+  // Si no hay lugar seleccionado, no mostramos el panel.
   if (!place) return null;
 
   const foto = place.fotoUrl || FALLBACK_IMAGE;
@@ -67,7 +67,7 @@ export default function PanelDetalle({ place, onBack }) {
         />
       </div>
 
-      {/* Tags medias accesibilidad (solo las que vengan) */}
+      {/* Mostramos únicamente las medias de accesibilidad disponibles */}
       <div className="tags" style={{ marginTop: 10 }}>
         {place.avgRampa != null && (
           <span className={`tag ${Number(place.avgRampa) >= 2.5 ? "tagGreen" : "tagRed"}`}>

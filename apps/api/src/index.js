@@ -17,15 +17,15 @@ const app = express();
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
 app.use(express.json());
 
-// Rutas
+// Registro de rutas principales de la API.
 app.use("/health", healthRoutes);
 app.use("/etiquetas", etiquetasRoutes);
 app.use('/api/places', lugaresRoutes);
 app.use("/google-places", googlePlacesRouter);
 app.use("/reviews", reviewsRoutes);
 
-// Ruta de prueba BD (muy útil para depurar)
-// Ruta de prueba BD (solo si ENABLE_DB_TEST=true)
+// Ruta de prueba BD (útil para depurar)
+// Ruta de prueba BD (solo se activa si ENABLE_DB_TEST=true y esta configurado.)
 if (process.env.ENABLE_DB_TEST === "true") {
   app.get("/db-test", async (req, res) => {
     try {

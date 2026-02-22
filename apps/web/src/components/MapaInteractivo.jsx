@@ -3,8 +3,11 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 
+// Centro por defecto para arrancar el mapa (en nuestras pruebas usamos Murcia como referencia)
 const MURCIA_CENTER = [37.9892, -1.1306];
 
+// Mapa “categoría -> icono” para que los marcadores sean más reconocibles a simple vista.
+// No buscamos cubrir todos los tipos posibles: lo ampliamos según categorías que vamos usando.
 const categoryIcons = {
   Alojamiento: '<i class="ph ph-bed"></i>',
   Hotel: '<i class="ph ph-bed"></i>',
@@ -34,6 +37,8 @@ const categoryIcons = {
   default: '<i class="ph ph-map-pin-line"></i>',
 };
 
+// Icono personalizado con HTML para diferenciar categorías.
+// Lo elegimos así (divIcon) porque Leaflet lo soporta muy bien y nos da flexibilidad de estilo.
 function createCustomIcon(category) {
   const iconHTML = categoryIcons[category] || categoryIcons.default;
 
@@ -48,6 +53,7 @@ function createCustomIcon(category) {
   });
 }
 
+// “Badge” para mostrar accesibilidad en el popup de manera rápida y visual
 function PopupBadge({ children, color = "#27ae60" }) {
   return (
     <span
@@ -66,6 +72,9 @@ function PopupBadge({ children, color = "#27ae60" }) {
   );
 }
 
+// Componente auxiliar: cuando cambia el lugar seleccionado desde la lista,
+// movemos el mapa al marcador y abrimos el popup.
+// Esto nos evita duplicar lógica entre lista y mapa.
 function SyncSelection({ selectedId, placesById, markerRefs }) {
   const map = useMap();
 
@@ -79,8 +88,10 @@ function SyncSelection({ selectedId, placesById, markerRefs }) {
     const lng = Number(place.longitud);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
+    // “Vuelo” suave para que el usuario vea claramente el cambio de contexto
     map.flyTo([lat, lng], Math.max(map.getZoom(), 15), { duration: 0.6 });
 
+    // Abrimos el popup del marcador seleccionado si ya está montado
     const mk = markerRefs.current[String(selectedId)];
     if (mk && mk.openPopup) mk.openPopup();
   }, [selectedId, placesById, markerRefs, map]);
@@ -93,6 +104,7 @@ export default function MapaInteractivo({
   selectedId = null,
   onSelectId = () => {},
 }) {
+  // Filtramos lugares con coordenadas válidas para evitar errores en Leaflet
   const safePlaces = useMemo(() => {
     return (lugares ?? []).filter((p) => {
       const lat = Number(p.latitud);
@@ -101,8 +113,10 @@ export default function MapaInteractivo({
     });
   }, [lugares]);
 
+  // Guardamos referencias a marcadores para poder abrir el popup desde fuera (SyncSelection)
   const markerRefs = useRef({});
 
+  // Mapa id -> lugar para búsquedas rápidas cuando cambia selectedId
   const placesById = useMemo(() => {
     const m = new Map();
     for (const p of safePlaces) {
@@ -112,7 +126,11 @@ export default function MapaInteractivo({
   }, [safePlaces]);
 
   return (
-    <MapContainer center={MURCIA_CENTER} zoom={13} style={{ height: "100%", width: "100%" }}>
+    <MapContainer
+      center={MURCIA_CENTER}
+      zoom={13}
+      style={{ height: "100%", width: "100%" }}
+    >
       <TileLayer
         url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
         attribution="&copy; OpenMapTiles &copy; OpenStreetMap contributors"
@@ -132,12 +150,19 @@ export default function MapaInteractivo({
               if (ref) markerRefs.current[id] = ref;
             }}
             eventHandlers={{
+              // Click en marcador -> seleccionamos el lugar (esto actualiza lista y panel detalle)
               click: () => onSelectId(id),
             }}
           >
             <Popup maxWidth={320}>
               <div style={{ padding: "10px" }}>
-                <h3 style={{ margin: "0 0 10px 0", color: "#2c3e50", fontSize: "16px" }}>
+                <h3
+                  style={{
+                    margin: "0 0 10px 0",
+                    color: "#2c3e50",
+                    fontSize: "16px",
+                  }}
+                >
                   {lugar.nombre}
                 </h3>
 
@@ -157,15 +182,36 @@ export default function MapaInteractivo({
                 </div>
 
                 {lugar.direccion && (
-                  <p style={{ margin: "5px 0", fontSize: "14px", color: "#555" }}>
+                  <p
+                    style={{
+                      margin: "5px 0",
+                      fontSize: "14px",
+                      color: "#555",
+                    }}
+                  >
                     📍 {lugar.direccion}
                   </p>
                 )}
 
-                <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #eee" }}>
-                  <strong style={{ fontSize: "13px", color: "#2c3e50" }}>Accesibilidad:</strong>
+                <div
+                  style={{
+                    marginTop: "10px",
+                    paddingTop: "10px",
+                    borderTop: "1px solid #eee",
+                  }}
+                >
+                  <strong style={{ fontSize: "13px", color: "#2c3e50" }}>
+                    Accesibilidad:
+                  </strong>
 
-                  <div style={{ marginTop: "6px", display: "flex", flexWrap: "wrap", gap: "5px" }}>
+                  <div
+                    style={{
+                      marginTop: "6px",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "5px",
+                    }}
+                  >
                     {lugar.rampa && <PopupBadge color="#10b981">♿ Rampa</PopupBadge>}
                     {lugar.aseoAdaptado && <PopupBadge color="#3b82f6">🚻 Aseo</PopupBadge>}
                     {lugar.aparcamientoAccesible && <PopupBadge color="#8b5cf6">🅿️ Parking</PopupBadge>}
@@ -195,11 +241,16 @@ export default function MapaInteractivo({
         );
       })}
 
-      <SyncSelection selectedId={selectedId} placesById={placesById} markerRefs={markerRefs} />
+      <SyncSelection
+        selectedId={selectedId}
+        placesById={placesById}
+        markerRefs={markerRefs}
+      />
     </MapContainer>
   );
 }
 
+// Clave “robusta” para identificar el lugar, porque no siempre tenemos el mismo id según el origen del dato
 function getPlaceKey(l) {
   return l.id ?? l.google_place_id ?? l.placeId ?? `${l.nombre}-${l.latitud}-${l.longitud}`;
 }

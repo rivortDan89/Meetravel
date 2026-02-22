@@ -8,7 +8,7 @@ import PanelDetalle from "../components/PanelDetalle";
 
 import { getPlaces } from "../services/api";
 
-// Normaliza texto (minúsculas + sin tildes)
+// Función de normalización para texto y evitar problemas con acentos, mayúsculas, etc. (útil para el buscador)
 function normalize(text = "") {
   return text
     .toLowerCase()
@@ -16,12 +16,13 @@ function normalize(text = "") {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-// Clave estable para selección
+// Generamos una clave lo más estable posible para cada lugar, intentando usar un ID único si existe, o una combinación de campos si no. Esto es útil para la selección y renderizado eficiente.
 function getPlaceKey(l) {
   return l.id ?? l.google_place_id ?? l.placeId ?? `${l.nombre}-${l.latitud}-${l.longitud}`;
 }
 
-// Aplica buscador + filtros de accesibilidad
+// Función que aplica primero el buscador por texto y después los filtros de accesibilidad.
+// Decidimos hacerlo en Frontend para evitar peticiones constantes al Backend.
 function applyFilters(places, filters, search = "") {
   const q = normalize(search);
 
@@ -50,7 +51,7 @@ export default function Maps({ view = "lista" }) {
   const [filters, setFilters] = useState({});
   const [search, setSearch] = useState("");
 
-  // selección (tarjeta <-> marcador)
+  // Estado compartido para sincronizar la selección entre la lista y el mapa.
   const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
@@ -82,13 +83,14 @@ export default function Maps({ view = "lista" }) {
     [places, filters, search]
   );
 
-  // Si el seleccionado no está en la lista filtrada → selectedPlace será null
+  // Si el lugar seleccionado deja de estar en la lista filtrada (por ejemplo, por un cambio en los filtros o el buscador), evitamos mostrar un detalle incoherente devolviendo null.
   const selectedPlace = useMemo(() => {
     if (!selectedId) return null;
     return filteredPlaces.find((p) => String(getPlaceKey(p)) === String(selectedId)) ?? null;
   }, [filteredPlaces, selectedId]);
 
-  // “view” opcional (si ya no lo usas, puedes quitarlo)
+  // Vista forzada para pruebas o navegación interna. 
+  // Actualmente no es imprescindible, pero lo dejamos por si ampliamos funcionalidades.
   const forceEmpty = view === "vacio";
   const forceDetail = view === "detalle";
 
@@ -115,8 +117,8 @@ export default function Maps({ view = "lista" }) {
           <div className="panel">
             {(forceDetail || selectedPlace) ? (
               <PanelDetalle
-                key={selectedId ?? "no-selection"}   // 👈 reinicia estado interno al cambiar de sitio
-                place={selectedPlace}
+                key={selectedId ?? "no-selection"}   // 👈 Usamos key para forzar que el componente se reinicie cuando cambia al lugar seleccionado.
+                place={selectedPlace}                // Así evitamos que se mantenga estado interno anterior.
                 onBack={() => setSelectedId(null)}
               />
             ) : (forceEmpty || filteredPlaces.length === 0) ? (

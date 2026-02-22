@@ -1,34 +1,26 @@
-// Importa el creador de routers de Express (para definir rutas HTTP)
 import { Router } from "express";
-// Importa el pool de conexiones a MySQL (configurado en db.js)
 import { pool } from "../config/db.js";
 
-// Crea una instancia de router donde definiremos los endpoints de lugares
 const router = Router();
 
-// Ruta GET /  (cuando se monte como /api/palces será GET /api/places)
+// GET /api/places
+// Devuelve los lugares junto con métricas de accesibilidad agregadas (conteo y medias).
 router.get("/", async (req, res) => {
   try {
-    // 1) Consulta SQL:
-    //    - Devuelve información básica de cada lugar
-    //    - Calcula la cantidad de resenas de accesibilidad de cada lugar
-    //    - Calcula la media de puntuación de cada etiqueta de accesibilidad
     const [rows] = await pool.query(`
       SELECT
-        l.id_lugar AS id,          -- identificador del lugar
-        l.nombre,                  -- nombre del lugar
-        l.descripcion,             -- descripción
-        l.latitud,                 -- latitud
-        l.longitud,                -- longitud
-        l.categoria,               -- categoría (Restaurante, Hotel, etc.)
-        l.direccion,               -- dirección
-        l.google_place_id,         -- id de Google Places (para no duplicar)
-        l.foto_url,                -- url de la foto
-      
-        -- Cantidad de resenas de accesibilidad por lugar
+        l.id_lugar AS id,
+        l.nombre,
+        l.descripcion,
+        l.latitud,
+        l.longitud,
+        l.categoria,
+        l.direccion,
+        l.google_place_id,
+        l.foto_url,
+
         COUNT(DISTINCT ra.id_resena_accesibilidad) AS total_resenas_accesibilidad,
 
-        -- Medias de puntuación por etiqueta (1..8) a partir de resena_accesibilidad
         AVG(CASE WHEN ra.id_etiqueta = 1 THEN ra.puntuacion END) AS avg_rampa,
         AVG(CASE WHEN ra.id_etiqueta = 2 THEN ra.puntuacion END) AS avg_aseo_adaptado,
         AVG(CASE WHEN ra.id_etiqueta = 3 THEN ra.puntuacion END) AS avg_aparcamiento_accesible,
@@ -38,33 +30,32 @@ router.get("/", async (req, res) => {
         AVG(CASE WHEN ra.id_etiqueta = 7 THEN ra.puntuacion END) AS avg_senaletica_braille,
         AVG(CASE WHEN ra.id_etiqueta = 8 THEN ra.puntuacion END) AS avg_info_subtitulos
       FROM lugar l
-      -- Solo etiquetas permitidas para la categoría del lugar
+      -- Solo contamos reseñas de etiquetas que estén permitidas para esa categoría
       LEFT JOIN categoria_etiqueta ce
-       ON ce.categoria = l.categoria
-      -- Reseñas
+        ON ce.categoria = l.categoria
       LEFT JOIN resena_accesibilidad ra
         ON ra.id_lugar = l.id_lugar
        AND ra.id_etiqueta = ce.id_etiqueta
       GROUP BY l.id_lugar
     `);
 
-    // 2) Umbral mínimo de nota para poner un color u otro en una etiqueta (0–5)
+    // Umbral para transformar medias (0..5) en booleanos que usa el filtrado del frontend.
+    // Lo dejamos aquí porque así el cliente no tiene que repetir la lógica de “>= 2.5”.
     const THRESHOLD = 2.5;
 
-    // 3) Transformar cada fila de la BD en un objeto que usará el frontend
     const lugares = rows.map((row) => ({
-      // Datos básicos del lugar
       id: row.id,
       nombre: row.nombre,
       descripcion: row.descripcion,
-      latitud: parseFloat(row.latitud),  
+      latitud: parseFloat(row.latitud),
       longitud: parseFloat(row.longitud),
       categoria: row.categoria,
       direccion: row.direccion,
       google_place_id: row.google_place_id,
       totalResenasAccesibilidad: row.total_resenas_accesibilidad,
       fotoUrl: row.foto_url,
-      // Notas medias por etiqueta (por si se quieren mostrar en la UI)
+
+      // Medias por etiqueta (si la UI quiere mostrarlas como “chips” con color)
       avgRampa: row.avg_rampa,
       avgAseoAdaptado: row.avg_aseo_adaptado,
       avgAparcamientoAccesible: row.avg_aparcamiento_accesible,
@@ -74,8 +65,7 @@ router.get("/", async (req, res) => {
       avgSenaleticaBraille: row.avg_senaletica_braille,
       avgInfoSubtitulos: row.avg_info_subtitulos,
 
-      // Banderas booleanas de accesibilidad:
-      // true solo si la media de esa etiqueta es >= THRESHOLD (2.5)
+      // Flags listas para filtrar rápido en frontend
       rampa: row.avg_rampa >= THRESHOLD,
       aseoAdaptado: row.avg_aseo_adaptado >= THRESHOLD,
       aparcamientoAccesible: row.avg_aparcamiento_accesible >= THRESHOLD,
@@ -85,11 +75,9 @@ router.get("/", async (req, res) => {
       senaleticaBraille: row.avg_senaletica_braille >= THRESHOLD,
       infoSubtitulos: row.avg_info_subtitulos >= THRESHOLD,
     }));
-    
-    // 4) Enviamos al cliente el array de lugares ya procesado
+
     res.json(lugares);
   } catch (err) {
-    // 5) Si algo falla (consulta, conexión, etc.), se captura aquí
     console.error("Error obteniendo lugares:", err);
     res.status(500).json({
       error: "Error al obtener lugares",
@@ -98,6 +86,4 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Exporta el router para usarlo en el servidor principal con app.use("/api/places", placesRoutes)
 export default router;
-
