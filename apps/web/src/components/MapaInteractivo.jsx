@@ -131,10 +131,10 @@ export default function MapaInteractivo({
       zoom={13}
       style={{ height: "100%", width: "100%" }}
     >
-      <TileLayer
-        url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
-        attribution="&copy; OpenMapTiles &copy; OpenStreetMap contributors"
-      />
+    <TileLayer
+  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+  attribution="&copy; OpenStreetMap contributors"
+/> 
 
       {safePlaces.map((lugar) => {
         const id = String(getPlaceKey(lugar));
