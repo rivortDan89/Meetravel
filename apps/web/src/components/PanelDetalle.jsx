@@ -46,6 +46,12 @@ export default function PanelDetalle({ place, onBack }) {
 
   const foto = place.fotoUrl || FALLBACK_IMAGE;
 
+  function formatEtiqueta(texto) {
+  if (!texto) return "";
+  return texto
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase()); // opcional, lo deja más natural
+}
   return (
     <div className="panelContent">
       <div className="detailTop">
@@ -139,9 +145,9 @@ export default function PanelDetalle({ place, onBack }) {
       <div className="reviewList">
         {filteredReviews.map((r) => (
           <article key={r.id} className="review">
-            <div className="reviewUser">
-              {r.usuario} · {r.etiqueta} · {Number(r.puntuacion).toFixed(1)}★
-            </div>
+          <div className="reviewUser">
+              {r.usuario} · {formatEtiqueta(r.etiqueta)} · {Number(r.puntuacion).toFixed(1)}★
+          </div>
 
             <p className="reviewText">{r.comentario}</p>
 
